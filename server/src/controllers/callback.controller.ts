@@ -2,14 +2,13 @@ import { Request, Response, Router } from "express";
 import { DI } from "../server";
 var request = require('request');
 var cookieParser = require('cookie-parser');
-var querystring = require('querystring');
+var URLSearchParams = require('url');
 const router = Router();
 router.use(cookieParser());
 var client_id = process.env.CLIENT_ID;
 var client_secret = process.env.CLIENT_SECRET;
 var redirect_uri = 'http://localhost:8080/callback';
 const stateKey = 'spotify_auth_state';
-
 var acc_tok: string;
 var ref_tok: string;
 router.get('/', (req: Request, res: Response) => {
@@ -18,11 +17,12 @@ router.get('/', (req: Request, res: Response) => {
   var storedState = req.cookies ? req.cookies[stateKey] : null;
   if (state === null || state !== storedState) {
     res.redirect('/#' +
-      querystring.stringify({
+      new URLSearchParams({
         error: 'state_mismatch'
-      }));
+      }).toString());
   } else {
     res.clearCookie(stateKey);
+    var buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
     var authOptions = {
       url: 'https://accounts.spotify.com/api/token',
       form: {
@@ -31,7 +31,7 @@ router.get('/', (req: Request, res: Response) => {
         grant_type: 'authorization_code'
       },
       headers: {
-        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+        'Authorization': 'Basic ' + buffer
       },
       json: true
     };
@@ -56,9 +56,9 @@ router.get('/', (req: Request, res: Response) => {
         res.redirect('/home');
       } else {
         res.redirect('/#' +
-          querystring.stringify({
+          new URLSearchParams({
             error: 'invalid_token'
-          }));
+          }).toString());
       }
     });
   }

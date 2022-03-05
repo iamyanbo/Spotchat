@@ -24,6 +24,9 @@ router.get('/', (req: Request, res: Response) => {
         res.send({
           'access_token': access_token
         });
+        res.write({
+          'access_token': access_token
+        })
       }
     });
 });

@@ -2,7 +2,6 @@ import { Request, Response, Router } from "express";
 import { DI } from "../server";
 var request = require('request');
 var cookieParser = require('cookie-parser');
-var querystring = require('querystring');
 const router = Router();
 
 var client_id = process.env.CLIENT_ID;

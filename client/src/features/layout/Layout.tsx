@@ -1,6 +1,7 @@
 import { FunctionComponent } from "react";
 import Head from "next/head";
 import Header from "../header/Header";
+import Footer from "../footer/Footer";
 
 const Layout: FunctionComponent = ({ children }) => {
   return (
@@ -17,6 +18,7 @@ const Layout: FunctionComponent = ({ children }) => {
           {children}
         </main>
       </body>
+      <Footer />
     </div>
   );
 };

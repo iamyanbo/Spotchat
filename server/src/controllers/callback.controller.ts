@@ -11,6 +11,7 @@ var redirect_uri = 'http://localhost:8080/callback';
 const stateKey = 'spotify_auth_state';
 var acc_tok: string;
 var ref_tok: string;
+var user_data: any[] = new Array;
 router.get('/', (req: Request, res: Response) => {
   var code = req.query.code || null;
   var state = req.query.state || null;
@@ -43,16 +44,37 @@ router.get('/', (req: Request, res: Response) => {
         acc_tok = access_token;
         ref_tok = refresh_token;
         var options = {
+          url: 'https://api.spotify.com/v1/me',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+        request.get(options, function(error: any, response: any, body: any) {
+          user_data.push(body)
+        });
+        var options = {
+          url: 'https://api.spotify.com/v1/me/albumsz',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+        request.get(options, function(error: any, response: any, body: any) {
+          user_data.push(body)
+        });
+        var options = {
+          url: 'https://api.spotify.com/v1/me/top/tracks',
+          headers: { 'Authorization': 'Bearer ' + access_token },
+          json: true
+        };
+        request.get(options, function(error: any, response: any, body: any) {
+          user_data.push(body)
+        });
+        var options = {
           url: 'https://api.spotify.com/v1/me/playlists',
           headers: { 'Authorization': 'Bearer ' + access_token },
           json: true
         };
-
-        // use the access token to access the Spotify Web API
         request.get(options, function(error: any, response: any, body: any) {
-          console.log(body);
+          user_data.push(body)
         });
-
         res.redirect('/home');
       } else {
         res.redirect('/#' +

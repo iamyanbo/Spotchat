@@ -1,23 +1,30 @@
-import { Entity, Property } from "@mikro-orm/core";
+import { Entity, OneToMany, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
-
-// TODO: Fix properties to what makes sense for spotify oauth
 
 @Entity()
 export class User extends BaseEntity {
   @Property()
-  username: string;
+  userId: string;
 
   @Property()
-  password: string;
+  about: any;
 
   @Property()
-  email: string;
+  playlists: any;
 
-  constructor(username: string, password: string, email: string) {
+  @Property()
+  albums: any;
+
+  @Property()
+  topTracks: any;
+
+  constructor(userId: string, about: any, playlists: any, albums: any, topTracks: any) {
     super();
-    this.username = username;
-    this.email = email;
-    this.password = password;
+    this.userId = userId;
+    this.about = about;
+    this.playlists = playlists;
+    this.albums = albums;
+    this.topTracks = topTracks;
+
   }
 }

@@ -1,8 +1,10 @@
 import React, { FunctionComponent } from "react";
-import Description from "../../pages/create-post/description";
-import ChooseSong from "../../pages/create-post/choose-song";
+
 import { FaEdit, FaTrashAlt, FaPlay, FaRegHeart, FaComment, FaReply} from "react-icons/fa";
 import { RiStackFill, RiPlayList2Fill } from "react-icons/ri";
+import { BsThreeDots} from "react-icons/bs";
+import MusicItem from "../music-item/MusicItem";
+import PlayableMusicComponent from "./PlayableMusicComponent";
 
 
 export interface SongInfo {
@@ -17,10 +19,15 @@ interface PostComponentProps {
     profilePath: string
     authorCaption: string
     song: SongInfo
+    editAndDelete: boolean
 
 
 
 }
+
+
+
+
 
 /*
 
@@ -64,29 +71,33 @@ function PostComponent(prop: PostComponentProps) {
                 </div>
 
                 <div>
-                    <button> <FaEdit className="text-green-500 mr-5 h-[20px] w-[20px]"></FaEdit></button>
-                    <button><FaTrashAlt className="text-green-500 mr-5 h-[20px] w-[20px]"></FaTrashAlt></button>
+                    {prop.editAndDelete
+                       ? 
+                       
+                       <div>
+                       <button> <FaEdit className="text-green-500 mr-5 h-[20px] w-[20px]"></FaEdit></button>
+                       <button><FaTrashAlt className="text-green-500 mr-5 h-[20px] w-[20px]"></FaTrashAlt></button>
+                       </div>
+
+                       :
+                       
+                       <div>
+                           <button><BsThreeDots className="text-green-500 mr-5 h-[20px] w-[20px]"></BsThreeDots></button>
+                       </div>
+        
+                    }
+
+                    
+                    
 
                 </div>
             </div>
 
             <div className="bg-[#475569] h-[3px]"></div>
 
-            <div className="flex bg-[#1E293B] h-[125px] items-center justify-between">
-
-                <div className="flex items-center">
-                    <img src={prop.song.albumCoverPath} className='h-[75px] w-[75px] rounded-lg ml-8'></img>
-                    <div className="flex flex-col ml-3">
-                        <h3 className="text-[15px] text-[#ECFCCB] font-bold">{prop.song.name}</h3>
-                        <h3 className="text-[12px] text-white"> {prop.song.artistName}</h3>
-                    </div>
-                </div>
-
-                <div className="flex items-center">
-                    <button> <FaPlay className="text-[#ECFCCB] mr-5 h-[20px] w-[20px]"></FaPlay></button>
-                    <button><RiStackFill className="text-[#ECFCCB] mr-5 h-[20px] w-[20px]"></RiStackFill></button>
-                    <button><RiPlayList2Fill className="text-[#ECFCCB] mr-5 h-[20px] w-[20px]"></RiPlayList2Fill></button>
-                </div>
+            <div>
+                <PlayableMusicComponent name={prop.song.name} artistName={prop.song.artistName} albumCoverPath={prop.song.albumCoverPath}></PlayableMusicComponent>
+                
             </div>
 
             <div className="flex mt-3">

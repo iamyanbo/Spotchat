@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, accTok } from "./controllers";
+import { AuthController, CallbackController, accessToken } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -34,7 +34,7 @@ export const init = (async () => {
 
   app.use((req, res, next) => RequestContext.create(DI.orm.em, next));
   app.get("/", (req, res) => res.json({ message: `hello`}));
-  app.get('/home', (req, res) => res.json({ message: `home ${accTok}`}));
+  app.get('/home', (req, res) => res.json({ message: `home ${accessToken}`}));
   // Define and attach the routes to the main app.
   app.use("/auth", AuthController);
   app.use("/callback", CallbackController);

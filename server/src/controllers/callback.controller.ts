@@ -1,75 +1,99 @@
 import { Request, Response, Router } from "express";
-import { MongoClient } from "mongodb";
 import { DI } from "../server";
 import qs from 'qs';
-async function createUser(user: any): Promise<any> {
-  const uri = "mongodb+srv://testuser:randompassword123@cluster0.9b1cx.mongodb.net/spotify?retryWrites=true&w=majority";
-  const client = new MongoClient(uri); 
-  console.log("Connecting to MongoDB");
-  try{
-    await client.connect();
-    console.log("Connected to MongoDB");
-    const result = await client.db("spotify").collection("users").insertOne(user);
-  } catch (e) {
-    console.log(e);
-  } finally {
-    await client.close();
-  }
-}
-var axios = require('axios');
-var cookieParser = require('cookie-parser');
+import { User } from "../entities";
+import axios from "axios";
+import cookieParser from 'cookie-parser';
 const router = Router();
 router.use(cookieParser());
 var client_id = process.env.CLIENT_ID;
 var client_secret = process.env.CLIENT_SECRET;
 var redirect_uri = 'http://localhost:8080/callback';
 var buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
-var accTok: string;
-var refTok: string;
-var user: any;
-const getToken = (code: any) => {
-  return axios({
-    method: 'post',
-    url: 'https://accounts.spotify.com/api/token',
-    params: {
-      client_id: client_id,
-      client_secret: client_secret,
+var stateKey = 'spotify_auth_state';
+var accessToken: string;
+var refreshToken: string;
+
+function makeUser(user: any): any {
+  var newUser = new User(user.about.id,
+    user.about,
+    user.playlists, 
+    user.albums, 
+    user.topTracks);
+  //find if the user is already in the database
+  DI.em.findOne(User, { userId: user.about.id }).then((user: any) => {
+    if (user === null) {
+      DI.em.persist(newUser).flush();
+    } else {
+      //delete the old user
+      DI.em.remove(user).flush();
+      //create a new user
+      DI.em.persist(newUser).flush();
+    }}).catch((error: any) => {
+      console.log(error);
+    });
+}
+
+const getToken = async (code: any) => {
+  try {
+    const response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({
+      grant_type: 'authorization_code',
       code: code,
-      grant_type: 'client_credentials',
-      redirect_uri: redirect_uri,
-    },
-    headers: {
-      'Authorization': 'Basic ' + buffer,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    json: true
-  })
-  .then((response: any) => {
-    return response.data.access_token;
-  })
+      redirect_uri: redirect_uri
+    }), {
+      headers: {
+        'Authorization': 'Basic ' + buffer,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    return {
+      access_token: response.data.access_token,
+      refresh_token: response.data.refresh_token
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const getData = (token: any) => {
+  const spotifyEndpoints = ['https://api.spotify.com/v1/me',
+   'https://api.spotify.com/v1/me/playlists', 
+   'https://api.spotify.com/v1/me/albums', 
+   'https://api.spotify.com/v1/me/top/tracks'
+  ];
+  return axios.all([
+    axios.get(spotifyEndpoints[0], {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    }),
+    axios.get(spotifyEndpoints[1], {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    }),
+    axios.get(spotifyEndpoints[2], {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    }),
+    axios.get(spotifyEndpoints[3], {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+  ])
+  .then(axios.spread((about: any, playlists: any, albums: any, topTracks: any, artists: any) => {
+    return {
+      about: about.data,
+      playlists: playlists.data,
+      albums: albums.data,
+      topTracks: topTracks.data,
+    }
+  }))
   .catch(function (error: any) {
     console.log(error);
   });
-}
-const getData = (token: any) => {
-  const spotifyEndpoints = ['https://api.spotify.com/v1/me', 'https://api.spotify.com/v1/me/playlists', 'https://api.spotify.com/v1/me/albums', 'https://api.spotify.com/v1/me/top/tracks', 'https://api.spotify.com/v1/me/following?type=artist'];
-  const promises = spotifyEndpoints.map(endpoint => {
-    return axios({
-      method: 'get',
-      url: endpoint,
-      headers: {
-        'Authorization': 'Bearer ' + token
-      },
-      json: true
-    })
-    .then((response: any) => {
-      return response.data;
-    })
-    .catch(function (error: any) {
-      console.log(error);
-    });
-  });
-  return Promise.all(promises);
 }
 
 router.get('/', (req: Request, res: Response) => {
@@ -80,12 +104,17 @@ router.get('/', (req: Request, res: Response) => {
         error: 'invalid_token'
       }));
   } else {
+    res.clearCookie(stateKey);
     getToken(code).then((response: any) => {
-      accTok = response;
+      accessToken = response.access_token;
+      refreshToken = response.refresh_token;
+      getData(accessToken).then((response: any) => {
+        makeUser(response);
+      });  
       res.redirect('/home');
     });
   }
 });
 
 export const CallbackController = router;
-export { accTok };
+export { accessToken , refreshToken };

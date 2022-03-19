@@ -6,6 +6,9 @@ import { BaseEntity } from "./BaseEntity";
 @Entity()
 export class User extends BaseEntity {
   @Property()
+  userId: string;
+
+  @Property()
   aboutMe: any
 
   @Property()
@@ -17,9 +20,12 @@ export class User extends BaseEntity {
   @Property()
   topTracks: any;
 
-
-
-  constructor(username: string, password: string, email: string) {
+  constructor(userId: string, aboutMe: any, albums: any, playlists: any, topTracks: any) {
     super();
+    this.userId = userId;
+    this.aboutMe = aboutMe;
+    this.albums = albums;
+    this.playlists = playlists;
+    this.topTracks = topTracks;
   }
 }

@@ -3,19 +3,17 @@ import { DI } from "../server";
 import qs from 'qs';
 import { User } from "../entities";
 import axios from "axios";
-import cookieParser from 'cookie-parser';
 const router = Router();
-router.use(cookieParser());
-var client_id = process.env.CLIENT_ID;
-var client_secret = process.env.CLIENT_SECRET;
-var redirect_uri = 'http://localhost:8080/callback';
-var buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
-var stateKey = 'spotify_auth_state';
-var accessToken: string;
-var refreshToken: string;
+const client_id = process.env.CLIENT_ID;
+const client_secret = process.env.CLIENT_SECRET;
+const redirect_uri = 'http://localhost:8080/callback';
+const buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
+const stateKey = 'spotify_auth_state';
+let accessToken: string;
+let refreshToken: string;
 
 function makeUser(user: any): any {
-  var newUser = new User(user.about.id,
+  const newUser = new User(user.about.id,
     user.about,
     user.playlists, 
     user.albums, 
@@ -97,7 +95,7 @@ const getData = (token: any) => {
 }
 
 router.get('/', (req: Request, res: Response) => {
-  var code = req.query.code || null;
+  const code = req.query.code || null;
   if(code === null) {
     res.redirect('/#' +
       qs.stringify({

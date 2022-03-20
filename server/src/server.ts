@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController } from "./controllers";
+import { AuthController, CallbackController, accessToken } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -33,11 +33,11 @@ export const init = (async () => {
   app.use(cors());
 
   app.use((req, res, next) => RequestContext.create(DI.orm.em, next));
-  app.get("/", (req, res) => res.json({ message: "Hello" }));
-
+  app.get("/", (req, res) => res.json({ message: `hello`}));
+  app.get('/home', (req, res) => res.json({ message: `home ${accessToken}`}));
   // Define and attach the routes to the main app.
   app.use("/auth", AuthController);
-
+  app.use("/callback", CallbackController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

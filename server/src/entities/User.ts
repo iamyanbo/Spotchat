@@ -6,18 +6,26 @@ import { BaseEntity } from "./BaseEntity";
 @Entity()
 export class User extends BaseEntity {
   @Property()
-  username: string;
+  userId: string;
 
   @Property()
-  password: string;
+  aboutMe: any
 
   @Property()
-  email: string;
+  albums: any;
 
-  constructor(username: string, password: string, email: string) {
+  @Property()
+  playlists: any;
+
+  @Property()
+  topTracks: any;
+
+  constructor(userId: string, aboutMe: any, albums: any, playlists: any, topTracks: any) {
     super();
-    this.username = username;
-    this.email = email;
-    this.password = password;
+    this.userId = userId;
+    this.aboutMe = aboutMe;
+    this.albums = albums;
+    this.playlists = playlists;
+    this.topTracks = topTracks;
   }
 }

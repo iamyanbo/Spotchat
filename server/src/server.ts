@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, accTok } from "./controllers";
+import { AuthController, CallbackController, accessToken } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -11,28 +11,24 @@ import {
   MikroORM,
   RequestContext,
 } from "@mikro-orm/core";
-import { Post, User, Vote, Comment } from "./entities";
+import { User } from "./entities";
+import cookieParser from 'cookie-parser';
 
 export const DI = {} as {
   server: http.Server;
   orm: MikroORM;
   em: EntityManager;
   userRepository: EntityRepository<User>;
-  postRepository: EntityRepository<Post>;
-  commentRepository: EntityRepository<Comment>;
-  voteRepository: EntityRepository<Vote>;
 };
 
 const app = express();
+app.use(cookieParser());
 const port = process.env.PORT || 8080;
 
 export const init = (async () => {
   DI.orm = await MikroORM.init();
   DI.em = DI.orm.em;
   DI.userRepository = DI.orm.em.getRepository(User);
-  DI.postRepository = DI.orm.em.getRepository(Post);
-  DI.commentRepository = DI.orm.em.getRepository(Comment);
-  DI.voteRepository = DI.orm.em.getRepository(Vote);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -40,7 +36,7 @@ export const init = (async () => {
 
   app.use((req, res, next) => RequestContext.create(DI.orm.em, next));
   app.get("/", (req, res) => res.json({ message: `hello`}));
-  app.get('/home', (req, res) => res.json({ message: `home ${accTok}`}));
+  app.get('/home', (req, res) => res.json({ message: `home ${accessToken}`}));
   // Define and attach the routes to the main app.
   app.use("/auth", AuthController);
   app.use("/callback", CallbackController);

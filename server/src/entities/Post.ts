@@ -1,17 +1,25 @@
-import { Entity, ManyToOne, Property } from "@mikro-orm/core";
+import { Entity, ManyToOne, OneToMany, Property, Collection } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
+import { Comment } from "./Comment";
+import { User } from "./User";
 
 @Entity()
 export class Post extends BaseEntity {
     @Property()
-    title: string;
-
-    @Property()
     body: string;
 
-    constructor(title: string, body: string) {
+    @Property()
+    likes: string[];
+
+    @ManyToOne()
+    user!: User;
+    
+    @OneToMany('Comment', 'post')
+    comments = new Collection<Comment>(this);
+
+    constructor(body: string) {
         super();
-        this.title = title;
         this.body = body;
+        this.likes = [];
     }
 }

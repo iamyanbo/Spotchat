@@ -1,12 +1,12 @@
-import { Entity, Property } from "@mikro-orm/core";
+import { ArrayType, Collection, Entity, OneToMany, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
-
-// TODO: Fix properties to what makes sense for spotify oauth
+import { Comment } from "./Comment";
+import { Post } from "./Post";
 
 @Entity()
 export class User extends BaseEntity {
   @Property()
-  userId: string;
+  userId: any;
 
   @Property()
   aboutMe: any
@@ -19,6 +19,12 @@ export class User extends BaseEntity {
 
   @Property()
   topTracks: any;
+
+  @OneToMany('Post', 'user')
+  posts = new Collection<Post>(this);
+
+  @OneToMany('Comment', 'user')
+  comments = new Collection<Comment>(this);
 
   constructor(userId: string, aboutMe: any, albums: any, playlists: any, topTracks: any) {
     super();

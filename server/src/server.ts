@@ -12,6 +12,7 @@ import {
   RequestContext,
 } from "@mikro-orm/core";
 import { User } from "./entities";
+import cookieParser from 'cookie-parser';
 
 export const DI = {} as {
   server: http.Server;
@@ -21,6 +22,7 @@ export const DI = {} as {
 };
 
 const app = express();
+app.use(cookieParser());
 const port = process.env.PORT || 8080;
 
 export const init = (async () => {

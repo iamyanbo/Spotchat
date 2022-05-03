@@ -1,5 +1,6 @@
-import { Entity, IntegerType, ManyToOne, OneToMany, Property } from "@mikro-orm/core";
-import internal from "stream";
+import { Collection, Entity, ManyToMany, ManyToOne, Property } from "@mikro-orm/core";
+import { Album } from "./Album";
+import { Artist } from "./Artist";
 import { BaseEntity } from "./BaseEntity";
 
 @Entity()
@@ -8,15 +9,27 @@ export class Song extends BaseEntity {
     title: string;
 
     @Property()
-    votesUp: number;
+    songId: any;
 
     @Property()
-    votesDown: number;
+    //stores userID of users who voted up
+    votesUp: [];
 
-    constructor(title: string) {
+    @Property()
+    //stores userID of users who voted down
+    votesDown: [];
+
+    @ManyToOne()
+    album?: Album;
+
+    @ManyToMany(() => Artist, artist => artist.songs)
+    artists = new Collection<Artist>(this);
+    
+    constructor(title: string, songId: string) {
         super();
         this.title = title;
-        this.votesUp = 0;
-        this.votesDown = 0;
+        this.songId = songId;
+        this.votesUp = [];
+        this.votesDown = [];
     }
 }

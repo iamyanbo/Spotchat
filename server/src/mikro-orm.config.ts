@@ -5,7 +5,7 @@ import { BaseEntity, User , Song, Artist, Post, Album, Comment } from "./entitie
 const options: Options = {
   type: "mongo",
   entities: [BaseEntity, User, Song, Artist, Post, Album, Comment],
-  dbName: "spotify-community-db",
+  dbName: "spotchat",
   highlighter: new MongoHighlighter(),
   debug: true,
 };

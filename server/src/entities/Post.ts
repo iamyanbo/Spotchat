@@ -5,13 +5,13 @@ import { User } from "./User";
 
 @Entity()
 export class Post extends BaseEntity {
-    @Property()
+    @Property({ type: "String" })
     body: string;
 
-    @Property()
+    @Property({ type: Array })
     likes: string[];
 
-    @ManyToOne()
+    @ManyToOne({ type: User })
     user!: User;
     
     @OneToMany('Comment', 'post')

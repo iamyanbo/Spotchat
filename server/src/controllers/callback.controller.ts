@@ -14,7 +14,7 @@ const stateKey = 'spotify_auth_state';
 let accessToken: string;
 let refreshToken: string;
 
-function saveUser(user: any): any {
+export const saveUser = async (user: any) => {
   const newUser = new User(user.about.id,
     user.about,
     user.playlists, 
@@ -99,7 +99,7 @@ const getData = (token: string) => {
 }
 
 //save song by using the song id to database
-const saveSongById = async (songId: string, token: string, album?: Album) => {
+export const saveSongById = async (songId: string, token: string, album?: Album) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/tracks/' + songId, {
       headers: {
@@ -130,7 +130,7 @@ const saveSongById = async (songId: string, token: string, album?: Album) => {
 }
 
 //save artist by using the artist id to database and return the artist
-const saveArtistById = async (artistId: string, token: string, song?: Song) => {
+export const saveArtistById = async (artistId: string, token: string, song?: Song) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/artists/' + artistId, {
       headers: {
@@ -160,7 +160,7 @@ const saveArtistById = async (artistId: string, token: string, song?: Song) => {
 }
 
 //save album by using the album id to database and return the album
-const saveAlbumById = async (albumId: any, token: string) => {
+export const saveAlbumById = async (albumId: any, token: string) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/albums/' + albumId, {
       headers: {
@@ -186,7 +186,7 @@ const saveAlbumById = async (albumId: any, token: string) => {
 }
 
 //save artist to database
-const saveArtist = async (artistName: string, token: string, song?: Song) => {
+export const saveArtist = async (artistName: string, token: string, song?: Song) => {
   const artist = await axios.get(`https://api.spotify.com/v1/search?q=${artistName}&type=artist`, {
     headers: {
       'Authorization': 'Bearer ' + token
@@ -214,14 +214,13 @@ const saveArtist = async (artistName: string, token: string, song?: Song) => {
 
 //save song to database
 //use this one for when a user searches for a song by name
-const saveSong = async (songName: string, token: string, album?: Album) => {
+export const saveSong = async (songName: string, token: string, album?: Album) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/search?q=' + songName + '&type=track', {
       headers: {
         'Authorization': 'Bearer ' + token
       }
     });
-    console.log(response.data.tracks.items[0]);
     const Id = response.data.tracks.items[0].id;
     const song = await DI.em.findOne(Song, { songId: Id });
       if (song === null) {
@@ -251,7 +250,7 @@ const saveSong = async (songName: string, token: string, album?: Album) => {
 }
 
 //save album in database
-const saveAlbum = async (albumname: any, token: string) => {
+export const saveAlbum = async (albumname: any, token: string) => {
   try {
     const response = await axios.get(`https://api.spotify.com/v1/search?q=${albumname}&type=album&limit=1`, {
       headers: {
@@ -289,7 +288,7 @@ const saveAlbum = async (albumname: any, token: string) => {
           
 //upvote song in database
 //Given that the song is in the database, this function will always succeed
-const upvoteSong = (songId: string, userId: string) => {
+export const upvoteSong = (songId: string, userId: string) => {
   try {
     DI.em.findOne(Song, { songId: songId }).then((song: any) => {
       if (song !== null) {
@@ -322,7 +321,7 @@ const upvoteSong = (songId: string, userId: string) => {
 
 //downvote song in database
 //Given that the song is in the database, this function will always succeed
-const downvoteSong = (songId: string, userId: string) => {
+export const downvoteSong = (songId: string, userId: string) => {
   try {
     DI.em.findOne(Song, { songId: songId }).then((song: any) => {
       if (song !== null) {
@@ -354,7 +353,7 @@ const downvoteSong = (songId: string, userId: string) => {
 }
 
 //store a post from the user in the database
-const savePost = (body: string, userId: string) => {
+export const savePost = (body: string, userId: string) => {
   //get the user from the database
   DI.em.findOne(User, { userId: userId }).then((user: any) => {
     if (user !== null) {
@@ -371,7 +370,7 @@ const savePost = (body: string, userId: string) => {
 }
 
 //edit post in database
-const editPost = async (postId: string, body: string) => {
+export const editPost = async (postId: string, body: string) => {
   try {
     const id = new ObjectId(postId);
     DI.em.findOne(Post, { _id : id }).then((post: any) => {
@@ -388,7 +387,7 @@ const editPost = async (postId: string, body: string) => {
 }
 
 //store a comment from the user in the database
-const saveComment = (body: string, userId: any, postId: any) => {
+export const saveComment = (body: string, userId: any, postId: any) => {
   //get the post from the database
   const id = new ObjectId(postId);
   DI.em.findOne(Post, { _id : id }).then((post: any) => {
@@ -433,6 +432,8 @@ router.get('/', (req: Request, res: Response) => {
       //});
       saveSong('Off The Grid', accessToken).then((response: any) => {
       });
+      const temp = await DI.em.findOne(Song, { title: 'Off The Grid' });
+      console.log(temp);
       //saveAlbum('Pluto x Baby Pluto', accessToken).then((response: any) => {
       //});
       //savePost('This is a test post', "yanbocheng01234");

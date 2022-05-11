@@ -5,19 +5,19 @@ import { Post } from "./Post";
 
 @Entity()
 export class User extends BaseEntity {
-  @Property()
-  userId: any;
+  @Property({type: "String"})
+  userId: string;
 
-  @Property()
+  @Property({type: Object})
   aboutMe: any
 
-  @Property()
+  @Property({type: Object})
   albums: any;
 
-  @Property()
+  @Property({type: Object})
   playlists: any;
 
-  @Property()
+  @Property({type: Object})
   topTracks: any;
 
   @OneToMany('Post', 'user')

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, accessToken } from "./controllers";
+import { AuthController, CallbackController, accessToken, userController, albumController, artistController, songController, postController, commentController } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -38,6 +38,12 @@ export const init = (async () => {
   app.get("/", (req, res) => res.json({ message: `hello`}));
   app.get('/home', (req, res) => res.json({ message: `home ${accessToken}`}));
   // Define and attach the routes to the main app.
+  app.use("/users", userController)
+  app.use("/albums", albumController)
+  app.use("/artists", artistController)
+  app.use("/songs", songController)
+  app.use("/posts", postController)
+  app.use("/comments", commentController)
   app.use("/auth", AuthController);
   app.use("/callback", CallbackController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));

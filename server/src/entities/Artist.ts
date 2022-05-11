@@ -5,11 +5,11 @@ import { Album } from "./Album";
 
 @Entity()
 export class Artist extends BaseEntity {
-    @Property()
+    @Property({ type: "String" })
     name: string;
 
-    @Property()
-    artistId: any;
+    @Property({ type: "String" })
+    artistId: string;
 
     @ManyToMany(() => Album, album => album.artists, { owner: true })
     albums = new Collection<Album>(this);

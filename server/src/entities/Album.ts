@@ -1,15 +1,15 @@
-import { Collection, Entity, ManyToMany, ManyToOne, OneToMany, Property } from "@mikro-orm/core";
+import { Collection, Entity, ManyToMany, OneToMany, Property } from "@mikro-orm/core";
 import { Artist } from "./Artist";
 import { BaseEntity } from "./BaseEntity";
 import { Song } from "./Song";
 
 @Entity()
 export class Album extends BaseEntity {
-    @Property()
+    @Property({ type: "String" })
     name: string;
 
-    @Property()
-    albumId: any;
+    @Property({ type: "String" })
+    albumId: string;
 
     @ManyToMany(() => Artist, artist => artist.albums)
     artists = new Collection<Artist>(this);

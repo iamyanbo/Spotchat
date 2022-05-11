@@ -5,21 +5,21 @@ import { BaseEntity } from "./BaseEntity";
 
 @Entity()
 export class Song extends BaseEntity {
-    @Property()
+    @Property({ type: "String" })
     title: string;
 
-    @Property()
-    songId: any;
+    @Property({ type: "String" })
+    songId: string;
 
-    @Property()
+    @Property({ type: Array })
     //stores userID of users who voted up
     votesUp: [];
 
-    @Property()
+    @Property({ type: Array })
     //stores userID of users who voted down
     votesDown: [];
 
-    @ManyToOne()
+    @ManyToOne({ type: Album })
     album?: Album;
 
     @ManyToMany(() => Artist, artist => artist.songs)

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, accessToken, userController, albumController, artistController, songController, postController, commentController } from "./controllers";
+import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -13,6 +13,7 @@ import {
 } from "@mikro-orm/core";
 import { User } from "./entities";
 import cookieParser from 'cookie-parser';
+import { Db } from "mongodb";
 
 export const DI = {} as {
   server: http.Server;
@@ -36,18 +37,18 @@ export const init = (async () => {
 
   app.use((req, res, next) => RequestContext.create(DI.orm.em, next));
   app.get("/", (req, res) => res.json({ message: `hello`}));
-  app.get('/home', (req, res) => res.json({ message: `home ${accessToken}`}));
+  app.get('/home', (req, res) => res.json({ message: `home ${req.cookies.accessToken}`}));
   // Define and attach the routes to the main app.
   app.use("/users", userController)
   app.use("/albums", albumController)
   app.use("/artists", artistController)
   app.use("/songs", songController)
-  app.use("/posts", postController)
-  app.use("/comments", commentController)
   app.use("/auth", AuthController);
   app.use("/callback", CallbackController);
+  app.use("/logout", logoutController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running
   DI.server = app.listen(port, () => console.log(`Listening on port ${port}`));
 })();
+

@@ -37,8 +37,8 @@ songController.post("/", async (req: Request, res: Response) => {
     try{
         const name = req.body.name;
         const token = req.body.token;
-        await saveSong(name, token);
-        res.status(201).send(`song created`);
+        const song = await saveSong(name, token);
+        res.status(201).send(`${song} created`);
     } catch(err) {
         res.status(500).json(err);
     }

@@ -1,18 +1,14 @@
 import { Request, Response, Router } from "express";
 import { DI } from "../server";
 import qs from 'qs';
-import { Post, User, Song, Artist, Album, Comment } from "../entities";
+import { User, Song, Artist, Album } from "../entities";
 import axios from "axios";
-import { ObjectId } from "@mikro-orm/mongodb";
-import { wrap } from '@mikro-orm/core';
 const router = Router();
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const redirect_uri = 'http://localhost:8080/callback';
 const buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
 const stateKey = 'spotify_auth_state';
-let accessToken: string;
-let refreshToken: string;
 
 export const saveUser = async (user: any) => {
   const newUser = new User(user.about.id,
@@ -24,6 +20,7 @@ export const saveUser = async (user: any) => {
   DI.em.findOne(User, { userId: user.about.id }).then((user: any) => {
     if (user === null) {
       DI.em.persist(newUser).flush();
+      return newUser;
     } else {
       //if they are, update the user
       user.about = newUser.aboutMe;
@@ -31,6 +28,7 @@ export const saveUser = async (user: any) => {
       user.albums = newUser.albums;
       user.topTracks = newUser.topTracks;
       DI.em.persist(user).flush();
+      return user;
     }}).catch((error: any) => {
       console.log(error);
     });
@@ -49,15 +47,15 @@ const getToken = async (code: any) => {
       }
     });
     return {
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token
+      accessToken: response.data.access_token,
+      refreshToken: response.data.refresh_token
     };
   } catch (error) {
     console.log(error);
   }
 }
 
-const getData = (token: string) => {
+const getData = async (token: string) => {
   const spotifyEndpoints = ['https://api.spotify.com/v1/me',
    'https://api.spotify.com/v1/me/playlists', 
    'https://api.spotify.com/v1/me/albums', 
@@ -118,10 +116,12 @@ export const saveSongById = async (songId: string, token: string, album?: Album)
       response.data.artists.forEach(async (artist: any) => {
         await saveArtistById(artist.id, token, newSong);
       });
+      return newSong;
     } else {
       if (typeof album !== 'undefined') {
         song.album = album;
         await DI.em.persist(song).flush();
+        return song;
       }
     }
   } catch (error) {
@@ -142,10 +142,8 @@ export const saveArtistById = async (artistId: string, token: string, song?: Son
       const newArtist = new Artist(response.data.name, artistId);
       if (typeof song !== 'undefined') {
         newArtist.songs.add(song);
-        await DI.em.persist(newArtist).flush();
-      } else {
-        await DI.em.persist(newArtist).flush();
       }
+        await DI.em.persist(newArtist).flush();
       return newArtist;
     } else {
       if (typeof song !== 'undefined') {
@@ -179,6 +177,7 @@ export const saveAlbumById = async (albumId: any, token: string) => {
         await saveSongById(response.data.tracks.items[i].id, token, newAlbum);
       }
       await DI.em.persist(newAlbum).flush();
+      return newAlbum;
     }
   } catch (error) {
     console.log(error);
@@ -198,10 +197,8 @@ export const saveArtist = async (artistName: string, token: string, song?: Song)
     const newArtist = new Artist(artist.data.artists.items[0].name, artistId);
     if (typeof song !== 'undefined') {
       newArtist.songs.add(song);
-      await DI.em.persist(newArtist).flush();
-    } else {
-      await DI.em.persist(newArtist).flush();
     }
+      await DI.em.persist(newArtist).flush();
     return newArtist;
   } else {
     if (typeof song !== 'undefined') {
@@ -212,40 +209,38 @@ export const saveArtist = async (artistName: string, token: string, song?: Song)
   }
 }
 
-//save song to database
+//save song to database and return the song
 //use this one for when a user searches for a song by name
 export const saveSong = async (songName: string, token: string, album?: Album) => {
-  try {
-    const response = await axios.get('https://api.spotify.com/v1/search?q=' + songName + '&type=track', {
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
+  const response = await axios.get(`https://api.spotify.com/v1/search?q=${songName}&type=track`, {
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  });
+  const songId = response.data.tracks.items[0].id;
+  const songDatabase = await DI.em.findOne(Song, { songId: songId });
+  if (songDatabase === null) {
+    const newSong = new Song(response.data.tracks.items[0].name, songId);
+    if (typeof album !== 'undefined') {
+      newSong.album = album;
+      response.data.tracks.artists.forEach(async (artist: any) => {
+        await saveArtistById(artist.id, token, newSong);
     });
-    const Id = response.data.tracks.items[0].id;
-    const song = await DI.em.findOne(Song, { songId: Id });
-      if (song === null) {
-        const newSong = new Song(response.data.tracks.items[0].name, Id);
-        if (typeof album !== 'undefined') {
-          newSong.album = album;
-          //add the song to the artists
-          response.data.tracks.items[0].artists.forEach(async (artist: any) => {
-          await saveArtist(artist.name, token, newSong);
-          });
-        } else {
-          //check if the song is part of an album from the spotofy response
-          if (typeof response.data.tracks.items[0].album !== 'undefined') {
-            const albumId = response.data.tracks.items[0].album.id;
-            await saveAlbumById(albumId, token);
-          }
-        }
-      } else {
-        if (typeof album !== 'undefined') {
-          song.album = album;
-          await DI.em.persist(song).flush();
-        }
+      await DI.em.persist(newSong).flush();
+    return newSong;
+    } else {
+      if (typeof response.data.tracks.items[0].album !== 'undefined') {
+        await saveAlbumById(response.data.tracks.items[0].album.id, token);
       }
-  } catch (error) {
-    console.log(error);
+      await DI.em.persist(newSong).flush();
+      return newSong;
+    }
+  } else {
+    if (typeof album !== 'undefined') {
+      songDatabase.album = album;
+      await DI.em.persist(songDatabase).flush();
+    }
+    return songDatabase;
   }
 }
 
@@ -279,138 +274,12 @@ export const saveAlbum = async (albumname: any, token: string) => {
           await saveSongById(albumResponse.data.tracks.items[i].id, token, newAlbum);
         }
         await DI.em.persist(newAlbum).flush();
+        return newAlbum;
       }
     }
   } catch (error) {
     console.log(error);
   }
-}
-          
-//upvote song in database
-//Given that the song is in the database, this function will always succeed
-export const upvoteSong = (songId: string, userId: string) => {
-  try {
-    DI.em.findOne(Song, { songId: songId }).then((song: any) => {
-      if (song !== null) {
-        //check if the user has already upvoted the song
-        if (song.votesUp.includes(userId)) {
-          //if they have, remove their vote
-          song.votesUp.splice(song.votesUp.indexOf(userId), 1);
-          DI.em.persist(song).flush();
-        } else {
-          //check if they have downvoted the song
-          if (song.votesDown.includes(userId)) {
-            //if they have, remove their vote and add their upvote
-            song.votesUp.splice(song.votesUp.indexOf(userId), 1);
-            song.votesUp.push(userId);
-            DI.em.persist(song).flush();
-          } else {
-            //if they haven't, add their upvote
-            song.votesUp.push(userId);
-            DI.em.persist(song).flush();
-          }
-        }
-      }
-    }).catch((error: any) => {
-      console.log(error);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-//downvote song in database
-//Given that the song is in the database, this function will always succeed
-export const downvoteSong = (songId: string, userId: string) => {
-  try {
-    DI.em.findOne(Song, { songId: songId }).then((song: any) => {
-      if (song !== null) {
-        //check if the user has already downvoted the song
-        if (song.votesDown.includes(userId)) {
-          //if they have, remove their vote
-          song.votesDown.splice(song.votesDown.indexOf(userId), 1);
-          DI.em.persist(song).flush();
-        } else {
-          //check if they have upvoted the song
-          if (song.votesUp.includes(userId)) {
-            //if they have, remove their vote and add their downvote
-            song.votesUp.splice(song.votesUp.indexOf(userId), 1);
-            song.votesDown.push(userId);
-            DI.em.persist(song).flush();
-          } else {
-            //if they haven't, add their downvote
-            song.votesDown.push(userId);
-            DI.em.persist(song).flush();
-          }
-        }
-      }
-    }).catch((error: any) => {
-      console.log(error);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-//store a post from the user in the database
-export const savePost = (body: string, userId: string) => {
-  //get the user from the database
-  DI.em.findOne(User, { userId: userId }).then((user: any) => {
-    if (user !== null) {
-      //create a new post
-      const newPost = new Post(body);
-      //add the user to the post
-      newPost.user = user;
-      //add the post to the database
-      DI.em.persist(newPost).flush();
-    }
-  }).catch((error: any) => {
-    console.log(error);
-  });
-}
-
-//edit post in database
-export const editPost = async (postId: string, body: string) => {
-  try {
-    const id = new ObjectId(postId);
-    DI.em.findOne(Post, { _id : id }).then((post: any) => {
-      if (post !== null) {
-        post.body = body;
-        DI.em.persist(post).flush();
-      }
-    }).catch((error: any) => {
-      console.log(error);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-//store a comment from the user in the database
-export const saveComment = (body: string, userId: any, postId: any) => {
-  //get the post from the database
-  const id = new ObjectId(postId);
-  DI.em.findOne(Post, { _id : id }).then((post: any) => {
-    if (post !== null) {
-      //get the user from the database
-      DI.em.findOne(User, { userId: userId }).then((user: any) => {
-        if (user !== null) {
-          //create a new comment
-          const newComment = new Comment(body);
-          //add the user to the comment
-          newComment.user = user;
-          //add the comment to the post
-          newComment.post = post;
-          //add the comment to the database
-          DI.em.persist(newComment).flush();
-        }
-      }).catch((error: any) => {
-        console.log(error);
-      });
-    }
-  }).catch((error: any) => {
-    console.log(error);
-  });
 }
 
 router.get('/', (req: Request, res: Response) => {
@@ -423,27 +292,13 @@ router.get('/', (req: Request, res: Response) => {
   } else {
     res.clearCookie(stateKey);
     getToken(code).then(async (response: any) => {
-      accessToken = response.access_token;
-      refreshToken = response.refresh_token;
-      getData(accessToken).then((response: any) => {
+      res.cookie("accessToken", response.accessToken);
+      getData(req.cookies.accessToken).then((response: any) => {
         saveUser(response);
       });  
-      //saveSong('Laugh now cry later', accessToken).then((response: any) => {
-      //});
-      saveSong('Off The Grid', accessToken).then((response: any) => {
-      });
-      const temp = await DI.em.findOne(Song, { title: 'Off The Grid' });
-      console.log(temp);
-      //saveAlbum('Pluto x Baby Pluto', accessToken).then((response: any) => {
-      //});
-      //savePost('This is a test post', "yanbocheng01234");
-      //saveComment("Random response", "yanbocheng01234", "62407e4c608ffda2726fbc1f")
-      //editPost("62407e4c608ffda2726fbc1f", "This is a test post, edited");
       res.redirect('/home');
     });
   }
 });
 
 export const CallbackController = router;
-export { accessToken , refreshToken };
-

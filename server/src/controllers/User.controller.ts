@@ -37,9 +37,12 @@ userController.get("/:id", async (req: Request, res: Response) => {
 userController.post("/", async (req: Request, res: Response) => {
     try{
         const user = req.body;
-        await saveUser(user);
-        res.status(201).send(`user created`);
-    } catch(err) {
+        const newUser = await saveUser(user);
+        if (newUser !== null) {
+            res.status(201).send(`${newUser} created`);
+        } else {
+            res.status(200).send(`user with userId: ${user.userId} already exists`);
+        }    } catch(err) {
         res.status(500).json(err);
     }
 });

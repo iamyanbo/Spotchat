@@ -1,4 +1,3 @@
-// External Dependencies
 import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { Artist } from "../entities";
@@ -39,8 +38,12 @@ artistController.post("/", async (req: Request, res: Response) => {
     try{
         const newartistName = req.body.name;
         const token = req.body.token;
-        await saveArtist(newartistName, token);
-        res.status(201).send(`artist ${newartistName} created`);
+        const artist = await saveArtist(newartistName, token);
+        if (artist) {
+            res.status(201).send(`${artist} created`);
+        } else {
+            res.status(200).send(`artist with name: ${newartistName} already exists`);
+        }
     } catch(err) {
         res.status(500).json(err);
     }

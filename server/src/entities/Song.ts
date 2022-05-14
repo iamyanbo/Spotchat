@@ -11,14 +11,6 @@ export class Song extends BaseEntity {
     @Property({ type: "String" })
     songId: string;
 
-    @Property({ type: Array })
-    //stores userID of users who voted up
-    votesUp: [];
-
-    @Property({ type: Array })
-    //stores userID of users who voted down
-    votesDown: [];
-
     @ManyToOne({ type: Album })
     album?: Album;
 
@@ -29,7 +21,5 @@ export class Song extends BaseEntity {
         super();
         this.title = title;
         this.songId = songId;
-        this.votesUp = [];
-        this.votesDown = [];
     }
 }

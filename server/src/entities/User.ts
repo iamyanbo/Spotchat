@@ -1,7 +1,5 @@
-import { ArrayType, Collection, Entity, OneToMany, Property } from "@mikro-orm/core";
+import { Entity, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
-import { Comment } from "./Comment";
-import { Post } from "./Post";
 
 @Entity()
 export class User extends BaseEntity {
@@ -9,24 +7,18 @@ export class User extends BaseEntity {
   userId: string;
 
   @Property({type: Object})
-  aboutMe: any
+  aboutMe: Object
 
   @Property({type: Object})
-  albums: any;
+  albums: Object;
 
   @Property({type: Object})
-  playlists: any;
+  playlists: Object;
 
   @Property({type: Object})
-  topTracks: any;
+  topTracks: Object;
 
-  @OneToMany('Post', 'user')
-  posts = new Collection<Post>(this);
-
-  @OneToMany('Comment', 'user')
-  comments = new Collection<Comment>(this);
-
-  constructor(userId: string, aboutMe: any, albums: any, playlists: any, topTracks: any) {
+  constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object) {
     super();
     this.userId = userId;
     this.aboutMe = aboutMe;

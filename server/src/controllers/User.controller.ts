@@ -37,7 +37,9 @@ userController.get("/:id", async (req: Request, res: Response) => {
 userController.post("/", async (req: Request, res: Response) => {
     try{
         const user = req.body;
-        const newUser = await saveUser(user);
+        const accessToken = req.body.accessToken;
+        const refreshToken = req.body.refreshToken;
+        const newUser = await saveUser(user, accessToken, refreshToken);
         if (newUser !== null) {
             res.status(201).send(`${newUser} created`);
         } else {

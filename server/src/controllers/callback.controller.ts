@@ -3,35 +3,42 @@ import { DI } from "../server";
 import qs from 'qs';
 import { User, Song, Artist, Album } from "../entities";
 import axios from "axios";
+import { nextTick } from "process";
+import cookieParser from "cookie-parser";
+
 const router = Router();
+router.use(cookieParser());
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const redirect_uri = 'http://localhost:8080/callback';
 const buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
 const stateKey = 'spotify_auth_state';
 
-export const saveUser = async (user: any) => {
+export const saveUser = async (user: any, accessToken: string, refreshToken: string) => {
   const newUser = new User(user.about.id,
     user.about,
     user.playlists, 
     user.albums, 
-    user.topTracks);
+    user.topTracks,
+    accessToken,refreshToken);
   //find if the user is already in the database
-  DI.em.findOne(User, { userId: user.about.id }).then((user: any) => {
-    if (user === null) {
-      DI.em.persist(newUser).flush();
-      return newUser;
-    } else {
-      //if they are, update the user
-      user.about = newUser.aboutMe;
-      user.playlists = newUser.playlists;
-      user.albums = newUser.albums;
-      user.topTracks = newUser.topTracks;
-      DI.em.persist(user).flush();
-      return user;
-    }}).catch((error: any) => {
-      console.log(error);
-    });
+  const checkUser = await DI.em.findOne(User, { userId: user.about.id });
+  if (checkUser) {
+    //if the user is already in the database, update the user
+    checkUser.userId = newUser.userId;
+    checkUser.aboutMe = newUser.aboutMe;
+    checkUser.playlists = newUser.playlists;
+    checkUser.albums = newUser.albums;
+    checkUser.topTracks = newUser.topTracks;
+    checkUser.accessToken = newUser.accessToken;
+    checkUser.refreshToken = newUser.refreshToken;
+    await DI.em.persist(checkUser).flush();
+    return checkUser;
+  } else {
+    //if the user is not in the database, create the user
+    await DI.em.persist(newUser).flush();
+    return newUser;
+  }
 }
 
 const getToken = async (code: any) => {
@@ -285,19 +292,21 @@ export const saveAlbum = async (albumname: any, token: string) => {
 router.get('/', (req: Request, res: Response) => {
   const code = req.query.code || null;
   if(code === null) {
-    res.redirect('/#' +
+    return res.redirect('/#' +
       qs.stringify({
         error: 'invalid_token'
       }));
   } else {
     res.clearCookie(stateKey);
-    getToken(code).then(async (response: any) => {
-      res.cookie("accessToken", response.accessToken);
-      getData(req.cookies.accessToken).then((response: any) => {
-        saveUser(response);
-      });  
-      res.redirect('/home');
-    });
+    getToken(code).then(async (response1: any) => {
+      getData(response1.accessToken).then((response2: any) => {
+        console.log(response1.accessToken);
+        saveUser(response2, response1.accessToken, response1.refreshToken).then((userResponse: User) => {
+          return res.redirect('http://localhost:3000?' + userResponse.userId);
+        })
+      })
+    })
+    
   }
 });
 

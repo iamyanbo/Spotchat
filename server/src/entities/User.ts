@@ -18,12 +18,21 @@ export class User extends BaseEntity {
   @Property({type: Object})
   topTracks: Object;
 
-  constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object) {
+  @Property({type: "String"})
+  accessToken: string;
+
+  @Property({type: "String"})
+  refreshToken: string;
+
+  constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object
+    , accessToken: string, refreshToken: string) {
     super();
     this.userId = userId;
     this.aboutMe = aboutMe;
     this.albums = albums;
     this.playlists = playlists;
     this.topTracks = topTracks;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
   }
 }

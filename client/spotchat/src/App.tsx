@@ -4,46 +4,15 @@ import Button from 'react-bootstrap/Button';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useSearchParams } from 'react-router-dom';
-import { ObjectID } from 'bson';
+import { Navigate } from 'react-router-dom';
+import { NavbarComponent } from './components/Navbar';
+import Login from './components/Login';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState({
-    userId: "",
-    aboutMe: Object,
-    albums: Object,
-    playlists: Object,
-    topTracks: Object,
-    accessToken: "",
-    refreshToken: ""
-  });
-  const userId = new URLSearchParams(window.location.search).get('userId');
-  useEffect(() => {
-    console.log('asdf');
-    if (userId) {
-      setLoggedIn(true);
-      axios.get('http://localhost:8080/users/' + userId)
-        .then(res => {
-          setUser(res.data);
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-  }, []);
   return (
     <div className="App">
-      {loggedIn ? (
-        <div>
-          <h1>Home</h1>
-        </div>
-      ) : (
-          <div>
-            <h1>Login</h1>
-            <Button variant="primary" href="http://localhost:8080/auth">Login</Button>
-          </div>
-        )}
+      <Login />
     </div>
   );
 }

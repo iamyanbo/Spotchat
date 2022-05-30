@@ -1,13 +1,10 @@
 import React from 'react';
-import './App.css';
 import Button from 'react-bootstrap/Button';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navigate } from 'react-router-dom';
 import { NavbarComponent } from './components/Navbar';
 import Login from './components/Login';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function App() {
   return (

@@ -10,7 +10,6 @@ class Login extends React.Component<{},any>{
         super(props);
         this.state = {
             loggedIn: false,
-            user: null,
             error: null,
         }
     }
@@ -19,7 +18,8 @@ class Login extends React.Component<{},any>{
         if (userId) {
             axios.get('http://localhost:8080/users/' + userId)
                 .then(res => {
-                    this.setState({user: res.data, loggedIn: true});
+                    this.setState({loggedIn: true});
+                    localStorage.setItem('user', JSON.stringify(res.data));
                 })
                 .catch(err => {
                     this.setState({error: err});

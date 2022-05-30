@@ -1,14 +1,13 @@
 import React from 'react';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, BrowserRouter as Router, Routes , Route} from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import Home from './components/Home';
 import { Logout } from './components/Logout';
+import "bootstrap/dist/css/bootstrap.css";
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

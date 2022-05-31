@@ -8,10 +8,10 @@ import Profile from './components/Profile';
 import Home from './components/Home';
 import { Logout } from './components/Logout';
 import "bootstrap/dist/css/bootstrap.css";
+import Album from './components/Album';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
@@ -21,7 +21,6 @@ root.render(
         <Route path="/logout" element={<Logout />} />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>,
 );
 
 

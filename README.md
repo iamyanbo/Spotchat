@@ -1,1 +1,1 @@
-# spotify-community
+# spotifyChat

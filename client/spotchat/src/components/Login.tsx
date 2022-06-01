@@ -19,6 +19,7 @@ class Login extends React.Component<{},any>{
             axios.get('http://localhost:8080/users/' + userId)
                 .then(res => {
                     this.setState({loggedIn: true});
+                    localStorage.setItem('loggedIn', 'true');
                     localStorage.setItem('user', JSON.stringify(res.data));
                 })
                 .catch(err => {

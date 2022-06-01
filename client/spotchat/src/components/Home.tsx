@@ -5,6 +5,7 @@ import { Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import { NavbarComponent } from "./Navbar"
 import Album from "./Album";
 import TopTracks from "./TopTracks";
+import { Navigate } from "react-router-dom";
 
 class Home extends React.Component<{}, any>{
     constructor(props: any){
@@ -21,24 +22,31 @@ class Home extends React.Component<{}, any>{
     handleClick2 = (e: any) => {
         this.setState({displayAlbums: false, displayTopTracks: true});
     }
-
+    
     render(){
         console.log(this.state.user)
-        return(
-            <div className="row">
-                <NavbarComponent />
-                <h1>Home</h1>
-                <ButtonToolbar style={{alignItems:"center", justifyContent:"center"}}>
-                    <ButtonGroup>
-                        <Button variant="primary" onClick={this.handleClick1}>Playlists</Button>
-                        <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>
-                    </ButtonGroup>
-                </ButtonToolbar>
-                {this.state.displayAlbums?<Album />:null}
-                {this.state.displayTopTracks?<TopTracks />:null}
-            </div>
-        );
+        if(localStorage.getItem("loggedIn") === "true"){
+            return(
+                <div>
+                    <NavbarComponent />
+                    <h1>SpotChat</h1>
+                    <h6>Displayed Name: {this.state.user.aboutMe.display_name}</h6>
+                    <h6>Email: {this.state.user.aboutMe.email}</h6>
+                    <h6>Country: {this.state.user.aboutMe.country}</h6>
+                    <ButtonToolbar>
+                        <ButtonGroup>
+                            <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
+                            <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>
+                        </ButtonGroup>
+                    </ButtonToolbar>
+                    {this.state.displayAlbums ? <Album /> : null}
+                    {this.state.displayTopTracks ? <TopTracks /> : null}
+                </div>
+            );
+        }
+        else{
+            return <Navigate to="/login" />;
+        }
     }
 }
-
 export default Home;

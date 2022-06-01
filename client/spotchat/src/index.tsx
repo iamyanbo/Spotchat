@@ -1,7 +1,7 @@
 import React from 'react';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, BrowserRouter as Router, Routes , Route} from 'react-router-dom';
+import { BrowserRouter, BrowserRouter as Router, Routes , Route, Navigate } from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
 import Login from './components/Login';
 import Profile from './components/Profile';
@@ -19,6 +19,7 @@ root.render(
         <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={<Home />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="*" element={<Navigate to="/home"/>} />
       </Routes>
     </BrowserRouter>
 );

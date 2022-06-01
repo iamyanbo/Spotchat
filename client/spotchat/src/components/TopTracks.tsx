@@ -20,7 +20,10 @@ class TopTracks extends React.Component<{}, any>{
                             </div>
                             <div className="card-body">
                                 <h5 className="card-title">{track.name}</h5>
-                                <p className="card-text">{track.artists.map((artist: any) => {return artist.name}).join(", ")}</p>
+                                <p className="card-text">{track.artists.map((artist: any) => {
+                                    return (
+                                        <a href={artist.uri} key={artist.id}>{artist.name}</a>
+                                    );}).reduce((prev: any, curr: any) => [prev, ', ', curr])}</p>
                             </div> 
                             <div className="card-footer text-muted mx-auto" style={{background:"transparent", borderTop: "0px"}}>
                                 <Button variant="primary" href={track.uri} >View on Spotify</Button>

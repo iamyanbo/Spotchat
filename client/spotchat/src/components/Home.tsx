@@ -29,11 +29,8 @@ class Home extends React.Component<{}, any>{
             return(
                 <div>
                     <NavbarComponent />
-                    <h1>SpotChat</h1>
-                    <h6>Displayed Name: {this.state.user.aboutMe.display_name}</h6>
-                    <h6>Email: {this.state.user.aboutMe.email}</h6>
-                    <h6>Country: {this.state.user.aboutMe.country}</h6>
-                    <ButtonToolbar>
+                    <h1>Home</h1>
+                    <ButtonToolbar style={{display: "flex", justifyContent: "center"}}>
                         <ButtonGroup>
                             <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
                             <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>

@@ -11,10 +11,10 @@ class TopTracks extends React.Component<{}, any>{
     render(){
         return (
             //make a card for each track with ranking
-            <div className="row">
+            <div className="row" style={{display:"flex", alignContent:"center", justifyContent:"center"}}>
                 {this.state.user.topTracks.items.map((track: any, i: number) => {
                     return (
-                        <div className="card" style={{width: "15rem", margin:'0.3rem'}} key={track.id}>
+                        <div className="card" style={{width: "15rem", margin:'0.8rem', paddingLeft:'0px', paddingRight:"0px"}} key={track.id}>
                             <div className="card-header">
                                 <h3>#{i+1}</h3>
                             </div>

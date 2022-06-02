@@ -30,7 +30,7 @@ class Login extends React.Component<{},any>{
     render(){
         if (this.state.error) {
             return <div>{this.state.error.message}</div>;
-        } else if (this.state.loggedIn) {
+        } else if (this.state.loggedIn && localStorage.getItem('loggedIn') === 'true') {
             return <Navigate to="/home" />;
         } else {
             return (

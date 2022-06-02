@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import Home from "./Home";
 import { NavbarComponent } from "./Navbar";
 
@@ -24,27 +24,25 @@ class Album extends React.Component<{}, any>{
     constructor(props: any){
         super(props);
         this.state = {
-            user : JSON.parse(localStorage.getItem('user')!),
+            user : JSON.parse(localStorage.getItem("user")!),
         }
     }
     render(){
         console.log(this.state.user)
         return(
-            <div className="row">
+            <div className="row" style={{display:"flex", alignContent:"center", justifyContent:"center"}}>
                 {this.state.user.albums.items.map((album: album) => {
                 return (
-                    <div className="card" style={{width: "15rem", margin:'0.3rem'}} key={album.id}>
-                        <div className="card-header">
-                        {album.public?"Public": "Private"}
-                        </div>
-                        <div className="card-body">
-                            <h5 className="card-title">{album.name}</h5>
-                            <p className="card-text" dangerouslySetInnerHTML={{__html: album.description === ""?"No Description":album.description}}></p>
-                        </div> 
-                        <div className="card-footer text-muted mx-auto" style={{background:"transparent", borderTop: "0px"}}>
-                            <Button variant="primary" href={album.uri} >View on Spotify</Button>
-                        </div>
-                    </div>
+                    <Card style={{width: "15rem", margin:"0.8rem", paddingLeft:"0px", paddingRight:"0px"}} key={album.id}>
+                        <Card.Header style={{background:(album.public? "#98FB98": "#FAA0A0")}}>{album.public? "Public" : "Private"}</Card.Header>
+                        <Card.Body>
+                            <Card.Title>{album.name}</Card.Title>
+                            <Card.Text dangerouslySetInnerHTML={{__html: album.description === ""? "No Description": album.description}}></Card.Text>
+                        </Card.Body>
+                        <Card.Footer style={{alignContent:"center", display:"flex", justifyContent:"center", background:"transparent", borderTop: "0px"}}>
+                            <Button href={album.uri}>View on Spotify</Button>
+                        </Card.Footer>
+                    </Card>
                 );
                 })}
             </div>

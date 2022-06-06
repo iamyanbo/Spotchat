@@ -302,7 +302,11 @@ router.get('/', (req: Request, res: Response) => {
       getData(response1.accessToken).then((response2: any) => {
         console.log(response1.accessToken);
         saveUser(response2, response1.accessToken, response1.refreshToken).then((userResponse: User) => {
-          return res.redirect('http://localhost:3000?' + userResponse.userId);
+          if (userResponse !== null) {
+            return res.redirect('http://localhost:3000/login?userId=' + userResponse.userId);
+          } else {
+            return res.redirect("http://localhost:3000/login?error=invalid_token");
+          }
         })
       })
     })

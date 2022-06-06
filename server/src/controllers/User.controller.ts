@@ -21,16 +21,14 @@ userController.get("/", async (req: Request, res: Response) => {
 });
 
 userController.get("/:id", async (req: Request, res: Response) => {
-    const id = req?.params.id;
+    const userId = req?.params.id;
     try{
-        const query = { _id: new ObjectId(id) };
-        const user = await DI.em.findOne(User, query);
-
+        const user = await DI.em.findOne(User, { userId: userId});
         if(user){
             res.status(200).json(user);
         }
     } catch(err) {
-        res.status(404).send(`user with id: ${id} not found`);
+        res.status(404).send(`user with id: ${userId} not found`);
     }
 });
 // POST

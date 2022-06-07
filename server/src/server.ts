@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController } from "./controllers";
+import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController, recommendationController } from "./controllers";
 import http from "http";
 import {
   EntityManager,
@@ -46,6 +46,7 @@ export const init = (async () => {
   app.use("/auth", AuthController);
   app.use("/callback", CallbackController);
   app.use("/logout", logoutController);
+  app.use("/recommendations", recommendationController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

@@ -23,7 +23,7 @@ userController.get("/", async (req: Request, res: Response) => {
 userController.get("/:id", async (req: Request, res: Response) => {
     const userId = req?.params.id;
     try{
-        const user = await DI.em.findOne(User, { userId: userId});
+        const user = await DI.em.findOne(User, { userId: userId });
         if(user){
             res.status(200).json(user);
         }
@@ -31,6 +31,7 @@ userController.get("/:id", async (req: Request, res: Response) => {
         res.status(404).send(`user with id: ${userId} not found`);
     }
 });
+
 // POST
 userController.post("/", async (req: Request, res: Response) => {
     try{

@@ -41,6 +41,20 @@ export const saveUser = async (user: any, accessToken: string, refreshToken: str
   }
 }
 
+export const updateUser = async (userId: string, sex: string, InterestedIn: string) => {
+  try{
+    const user = await DI.em.findOne(User, {userId: userId})
+    if (user) {
+      user.sex = sex
+      user.InterestedIn = InterestedIn
+      await DI.em.persist(user).flush();
+      return user
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const getToken = async (code: any) => {
   try {
     const response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({

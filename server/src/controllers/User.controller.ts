@@ -3,7 +3,7 @@ import express, { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { DI } from "../server";
 import { User } from "../entities";
-import { saveUser } from "./callback.controller";
+import { saveUser, updateUser } from "./callback.controller";
 
 // Global Config
 export const userController = express.Router();
@@ -47,3 +47,18 @@ userController.post("/", async (req: Request, res: Response) => {
         res.status(500).json(err);
     }
 });
+
+// PATCH
+userController.patch("/", async (req: Request, res: Response) => {
+    try{
+        const userId = req.body.userId;
+        const sex = req.body.sex;
+        const InterestedIn = req.body.InterestedIn;
+        const updatedUser = await updateUser(userId, sex, InterestedIn)
+        if (updatedUser !== null) {
+            res.status(200).send(`${updatedUser} updated`);
+        } } catch (err) {
+            res.status(500).json(err)
+    }
+});
+

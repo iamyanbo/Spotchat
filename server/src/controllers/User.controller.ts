@@ -53,8 +53,8 @@ userController.patch("/", async (req: Request, res: Response) => {
     try{
         const userId = req.body.userId;
         const sex = req.body.sex;
-        const InterestedIn = req.body.InterestedIn;
-        const updatedUser = await updateUser(userId, sex, InterestedIn)
+        const interestedIn = req.body.interestedIn;
+        const updatedUser = await updateUser(userId, sex, interestedIn)
         if (updatedUser !== null) {
             res.status(200).send(`${updatedUser} updated`);
         } } catch (err) {

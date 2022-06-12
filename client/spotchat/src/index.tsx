@@ -8,6 +8,7 @@ import Profile from './components/Profile';
 import Home from './components/Home';
 import { Logout } from './components/Logout';
 import Orientation from './components/Orientation';
+import Discover from './components/Discover';
 import "bootstrap/dist/css/bootstrap.css";
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
@@ -24,6 +25,7 @@ root.render(
         <Route path="/home" element={<Home />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/orientation" element={<Orientation />} />
+        <Route path="/discover" element={<Discover />} />
         <Route path="*" element={<Navigate to="/home"/>} />
       </Routes>
       ) : (

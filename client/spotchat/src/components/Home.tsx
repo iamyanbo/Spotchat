@@ -24,26 +24,22 @@ class Home extends React.Component<{}, any>{
     }
     
     render(){
-        console.log(this.state.user)
-        if(localStorage.getItem("loggedIn") === "true"){
-            return(
-                <div>
-                    <NavbarComponent />
-                    <h1>Home</h1>
-                    <ButtonToolbar style={{display: "flex", justifyContent: "center"}}>
-                        <ButtonGroup>
-                            <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
-                            <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>
-                        </ButtonGroup>
-                    </ButtonToolbar>
-                    {this.state.displayAlbums ? <Album /> : null}
-                    {this.state.displayTopTracks ? <TopTracks /> : null}
-                </div>
-            );
-        }
-        else{
-            return <Navigate to="/login" />;
-        }
+        console.log(this.state.user);
+        return(
+            <div>
+                <NavbarComponent />
+                <h1>Home</h1>
+                <ButtonToolbar style={{display: "flex", justifyContent: "center"}}>
+                    <ButtonGroup>
+                        <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
+                        <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>
+                    </ButtonGroup>
+                </ButtonToolbar>
+                {this.state.displayAlbums ? <Album /> : null}
+                {this.state.displayTopTracks ? <TopTracks /> : null}
+            </div>
+        );
+    
     }
 }
 export default Home;

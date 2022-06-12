@@ -1,39 +1,49 @@
+import React from "react";
+import reactDOM from "react-dom";
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from "react";
+import { Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import { NavbarComponent } from "./Navbar"
+import Album from "./Album";
+import TopTracks from "./TopTracks";
+import { Navigate } from "react-router-dom";
 
-interface album{
-    collaborative: boolean;
-    description: string;
-    external_urls: object;
-    href: string;
-    id: string;
-    images: object[];
-    name: string;
-    owner: object;
-    primary_color: null;
-    public: boolean;
-    snapshot_id: string;
-    tracks: object;
-    type: string;
-    uri: string;
-}
-
-const Home = () => {
-    const user = JSON.parse(localStorage.getItem('user')!);
-    console.log(user);
-    return (
-        <div>
-            <NavbarComponent />
-            <h1>Home</h1>
-            <h6>Albums:</h6>
-            {user.albums.items.map((album: album) => {
-                return (
-                    <div>
-                        <h6>{album.name}</h6>
-                    </div>
-                );
-            })}
-        </div>
-    );
+class Home extends React.Component<{}, any>{
+    constructor(props: any){
+        super(props);
+        this.state = {
+            user : JSON.parse(localStorage.getItem('user')!),
+            displayAlbums: false,
+            displayTopTracks: true,
+        }
+    }
+    handleClick1 = (e: any) => {
+        this.setState({displayAlbums: true, displayTopTracks: false});
+    }
+    handleClick2 = (e: any) => {
+        this.setState({displayAlbums: false, displayTopTracks: true});
+    }
+    
+    render(){
+        console.log(this.state.user)
+        if(localStorage.getItem("loggedIn") === "true"){
+            return(
+                <div>
+                    <NavbarComponent />
+                    <h1>Home</h1>
+                    <ButtonToolbar style={{display: "flex", justifyContent: "center"}}>
+                        <ButtonGroup>
+                            <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
+                            <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>
+                        </ButtonGroup>
+                    </ButtonToolbar>
+                    {this.state.displayAlbums ? <Album /> : null}
+                    {this.state.displayTopTracks ? <TopTracks /> : null}
+                </div>
+            );
+        }
+        else{
+            return <Navigate to="/login" />;
+        }
+    }
 }
 export default Home;

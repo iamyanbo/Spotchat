@@ -41,6 +41,20 @@ export const saveUser = async (user: any, accessToken: string, refreshToken: str
   }
 }
 
+export const updateUser = async (userId: string, sex: string, InterestedIn: string) => {
+  try{
+    const user = await DI.em.findOne(User, {userId: userId})
+    if (user) {
+      user.sex = sex
+      user.InterestedIn = InterestedIn
+      await DI.em.persist(user).flush();
+      return user
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const getToken = async (code: any) => {
   try {
     const response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({
@@ -302,7 +316,11 @@ router.get('/', (req: Request, res: Response) => {
       getData(response1.accessToken).then((response2: any) => {
         console.log(response1.accessToken);
         saveUser(response2, response1.accessToken, response1.refreshToken).then((userResponse: User) => {
-          return res.redirect('http://localhost:3000?' + userResponse.userId);
+          if (userResponse !== null) {
+            return res.redirect('http://localhost:3000/login?userId=' + userResponse.userId);
+          } else {
+            return res.redirect("http://localhost:3000/login?error=invalid_token");
+          }
         })
       })
     })

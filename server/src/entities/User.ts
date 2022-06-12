@@ -18,6 +18,12 @@ export class User extends BaseEntity {
   @Property({type: Object})
   topTracks: Object;
 
+  @Property({type: String})
+  sex!: string;
+
+  @Property({type: String})
+  InterestedIn!: string;
+
   @Property({type: "String"})
   accessToken: string;
 

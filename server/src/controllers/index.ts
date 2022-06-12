@@ -5,3 +5,4 @@ export * from "./album.controller";
 export * from "./artist.controller";
 export * from "./song.controller";
 export * from "./logout.controller";
+export * from "./recommendation.controller";

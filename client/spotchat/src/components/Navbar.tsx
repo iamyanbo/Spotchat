@@ -4,7 +4,7 @@ export const NavbarComponent = () => {
     return (
         <Navbar bg="dark" variant="dark">
             <Container>
-                <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+                <Navbar.Brand href="/home">SpotChat</Navbar.Brand>
                 <Nav>
                 <Nav.Link href="/home">Home</Nav.Link>
                 <Nav.Link href="/profile">Profile</Nav.Link>

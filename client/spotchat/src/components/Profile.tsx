@@ -4,8 +4,6 @@ import { NavbarComponent } from "./Navbar"
 
 const Profile = () => {
     const user = JSON.parse(localStorage.getItem('user')!);
-    console.log(user);
-    if (localStorage.getItem("loggedIn") === "true") {
         return(
             <div>
                 <NavbarComponent />
@@ -16,9 +14,5 @@ const Profile = () => {
                 <Button variant="primary" href="/logout">Logout</Button>
             </div>
         );
-    } else {
-        return <Navigate to="/login" />;
-    }
-    
 }
 export default Profile;

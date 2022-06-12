@@ -7,20 +7,40 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import Home from './components/Home';
 import { Logout } from './components/Logout';
+import Orientation from './components/Orientation';
 import "bootstrap/dist/css/bootstrap.css";
-import Album from './components/Album';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
+
 root.render(
+  
     <BrowserRouter>
+    {localStorage.getItem("loggedIn") === "true" ? (
+      localStorage.getItem("userDetails") === "true" ? (
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={<Home />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/orientation" element={<Orientation />} />
         <Route path="*" element={<Navigate to="/home"/>} />
       </Routes>
+      ) : (
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/orientation" element={<Orientation />} />
+          <Route path="*" element={<Navigate to="/orientation"/>} />
+        </Routes>
+      )
+    ) : (
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login"/>} />
+      </Routes>
+    )}
     </BrowserRouter>
 );
 

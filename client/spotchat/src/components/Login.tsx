@@ -31,7 +31,8 @@ class Login extends React.Component<{},any>{
         if (this.state.error) {
             return <div>{this.state.error.message}</div>;
         } else if (this.state.loggedIn && localStorage.getItem('loggedIn') === 'true') {
-            return <Navigate to="/home" />;
+            console.log('yes');
+            window.location.href = "/home";
         } else {
             return (
                 <div>

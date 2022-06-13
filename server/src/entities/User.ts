@@ -24,6 +24,15 @@ export class User extends BaseEntity {
   @Property({type: String})
   InterestedIn!: string;
 
+  @Property({type: Date})
+  birthday!: Date;
+
+  @Property({type: String})
+  bio!: string;
+
+  @Property({type: String})
+  profilePicture!: string;
+
   @Property({type: "String"})
   accessToken: string;
 

@@ -47,7 +47,7 @@ export const getRelatedArtistsMusic = async (artistId: string, popularity: numbe
     return relatedTracksShrinked;
 }
 
-
+//need to update so it takes into account their gender
 export const getRelatedUsers = async (relatedMusic: any) => {
     //get the users that have the same music in their top tracks
     const users = await DI.em.find(User, {});

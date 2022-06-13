@@ -14,6 +14,8 @@ import {
 import { User } from "./entities";
 import cookieParser from 'cookie-parser';
 import { Db } from "mongodb";
+import Pusher from "pusher";
+import { MessageController } from "./controllers/Message.controller";
 
 export const DI = {} as {
   server: http.Server;
@@ -26,14 +28,23 @@ const app = express();
 app.use(cookieParser());
 const port = process.env.PORT || 8080;
 
+export const pusher = new Pusher({
+  appId: process.env.app_id!,
+  key: process.env.key!,
+  secret: process.env.secret!,
+  cluster: process.env.cluster!,
+  encrypted: true,
+});
+
 export const init = (async () => {
   DI.orm = await MikroORM.init();
   DI.em = DI.orm.em;
   DI.userRepository = DI.orm.em.getRepository(User);
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ extended: true , limit: "50mb" }));
   app.use(cors());
+
 
   app.use((req, res, next) => RequestContext.create(DI.orm.em, next));
   app.get("/", (req, res) => res.json({ message: `hello`}));
@@ -47,6 +58,7 @@ export const init = (async () => {
   app.use("/callback", CallbackController);
   app.use("/logout", logoutController);
   app.use("/recommendations", recommendationController);
+  app.use("/messages", MessageController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

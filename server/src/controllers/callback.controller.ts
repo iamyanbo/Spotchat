@@ -41,12 +41,15 @@ export const saveUser = async (user: any, accessToken: string, refreshToken: str
   }
 }
 
-export const updateUser = async (userId: string, sex: string, InterestedIn: string) => {
+export const updateUser = async (userId: string, sex: string, InterestedIn: string, birthday: Date, bio: string, profilePicture: string) => {
   try{
     const user = await DI.em.findOne(User, {userId: userId})
     if (user) {
       user.sex = sex
       user.InterestedIn = InterestedIn
+      user.birthday = birthday
+      user.bio = bio
+      user.profilePicture = profilePicture
       await DI.em.persist(user).flush();
       return user
     }

@@ -3,6 +3,8 @@ import axios from 'axios';
 import Pusher from 'pusher-js';
 import ChatList from './ChatList';
 import ChatBox from './ChatBox';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class Messages extends React.Component<{}, any> {
     constructor(props: any) {
@@ -18,8 +20,8 @@ class Messages extends React.Component<{}, any> {
 
     componentDidMount() {
         const username = this.state.user.aboutMe.display_name;
-        const pusher = new Pusher("1646309d247a7d0867da", {
-            cluster: "us2"
+        const pusher = new Pusher(process.env.app_id!, {
+            cluster: process.env.cluster!
         });
         const channel = pusher.subscribe("chat");
         channel.bind('message', (data: any) => {

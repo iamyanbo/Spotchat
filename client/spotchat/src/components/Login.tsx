@@ -32,7 +32,7 @@ class Login extends React.Component<{},any>{
             return <div>{this.state.error.message}</div>;
         } else if (this.state.loggedIn && localStorage.getItem('loggedIn') === 'true') {
             console.log('yes');
-            window.location.href = "/home";
+            window.location.href = "/orientation";
         } else {
             return (
                 <div>

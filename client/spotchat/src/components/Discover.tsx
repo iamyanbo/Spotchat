@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Accordion, Button } from "react-bootstrap";
 import { NavbarComponent } from "./Navbar";
 
 interface User {
@@ -14,6 +14,8 @@ interface User {
     birthday: Date;
     bio: string;
     profilePicture: string;
+    recommendedUsers: any;
+    acceptedUsers: any;
     accessToken: string;
     refreshToken: string;
 }
@@ -24,13 +26,16 @@ class Discover extends React.Component<{}, any> {
         this.state = {
             user: JSON.parse(localStorage.getItem('user')!),
         }
+        this.handleClickYes = this.handleClickYes.bind(this);
     }
 
-    getRelatedUsers = async () => {
-        const response = await axios.get("http://localhost:8080/recommendations/" + this.state.user.userId);
-        console.log(response.data);
-        return response.data;
+    async handleClickYes(event: any) {
+        await axios.patch("http://localhost:8080/users/accepted", {
+            userId: this.state.user.userId,
+            acceptedUserId: event.target.id,
+        });
     }
+
 
     render() {
         if (localStorage.getItem("relatedUsers") === null) {
@@ -47,9 +52,23 @@ class Discover extends React.Component<{}, any> {
                 <div>
                     {localStorage.getItem('relatedUsers') ? JSON.parse(localStorage.getItem('relatedUsers')!).map((user: User) => {
                         return <div key={user.userId}> 
-                            <Button variant="primary" href={user.aboutMe.external_urls.spotify} target="_blank">
-                                {user.aboutMe.display_name}
-                            </Button>
+                        <Accordion>
+                                <Accordion.Header>
+                                    <h3>{user.aboutMe.display_name}</h3>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <h6>
+                                        Bio: {user.bio}
+                                    </h6>
+                                    <Button variant="primary" href={user.aboutMe.external_urls.spotify} target="_blank">
+                                        View on Spotify
+                                    </Button>
+                                    <Button variant="primary" onClick={this.handleClickYes} id={user.userId}> Yes </Button>
+                                    <Button variant="primary"> No </Button>
+                                </Accordion.Body>
+
+                            </Accordion>
+                            
                         </div>
                     }
                     ) : null}

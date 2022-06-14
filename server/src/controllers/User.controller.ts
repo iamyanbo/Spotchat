@@ -10,6 +10,13 @@ export const userController = express.Router();
 
 userController.use(express.json());
 
+const updateAcceptedUsers = async (userId: string, acceptedUser: string) => {
+    const user: any = await DI.em.findOne(User, { userId: userId });
+    console.log(user.acceptedUsers);
+    user.acceptedUsers.push(acceptedUser);
+    await DI.em.persistAndFlush(user);
+}
+
 // GET
 userController.get("/", async (req: Request, res: Response) => {
     try{
@@ -63,5 +70,18 @@ userController.patch("/", async (req: Request, res: Response) => {
         } } catch (err) {
             res.status(500).json(err)
     }
+});
+
+userController.patch("/accepted", async (req: Request, res: Response) => {
+    try{
+        const userId = req.body.userId;
+        const acceptedUserId = req.body.acceptedUserId;
+        console.log(userId, acceptedUserId)
+        const updatedUser = await updateAcceptedUsers(userId, acceptedUserId);
+        if (updatedUser !== null) {
+            res.status(200).send(`${updatedUser} updated`);
+        } } catch (err) {
+            res.status(500).json(err)
+    }   
 });
 

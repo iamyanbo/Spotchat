@@ -88,7 +88,10 @@ class Orientation extends React.Component<{}, any> {
                 profilePicture: this.state.profilePictureEncoded
             });
             localStorage.setItem("userDetails", "true");
-            window.location.href = "/home";
+            axios.get("http://localhost:8080/users/" + this.state.user.userId).then(res => {
+                localStorage.setItem("user", JSON.stringify(res.data));
+                window.location.href = "/home";
+            });
         } else {
             this.handleModalOpen()
         }
@@ -96,6 +99,10 @@ class Orientation extends React.Component<{}, any> {
     }
 
     render() {
+        const user: any = localStorage.getItem("user");
+        if (user.sex !== "") {
+            window.location.href = "/home";
+        }
         const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         return(
             <div>

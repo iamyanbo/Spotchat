@@ -25,17 +25,37 @@ class Discover extends React.Component<{}, any> {
         super(props);
         this.state = {
             user: JSON.parse(localStorage.getItem('user')!),
+            reload: false,
         }
         this.handleClickYes = this.handleClickYes.bind(this);
+        this.handleClickNo = this.handleClickNo.bind(this);
     }
 
     async handleClickYes(event: any) {
         await axios.patch("http://localhost:8080/users/accepted", {
             userId: this.state.user.userId,
             acceptedUserId: event.target.id,
+        }).then(res => {
+            console.log(res);
+            localStorage.setItem('relatedUsers', JSON.stringify(res.data));
+        }).catch(err => {
+            console.log(err);
         });
+        this.setState({ reload: true });
     }
 
+    async handleClickNo(event: any) {
+        await axios.patch("http://localhost:8080/users/rejected", {
+            userId: this.state.user.userId,
+            rejectedUserId: event.target.id,
+        }).then(res => {
+            console.log(res);
+            localStorage.setItem('relatedUsers', JSON.stringify(res.data));
+        }).catch(err => {
+            console.log(err);
+        });
+        this.setState({ reload: true });
+    }
 
     render() {
         if (localStorage.getItem("relatedUsers") === null) {
@@ -64,7 +84,7 @@ class Discover extends React.Component<{}, any> {
                                         View on Spotify
                                     </Button>
                                     <Button variant="primary" onClick={this.handleClickYes} id={user.userId}> Yes </Button>
-                                    <Button variant="primary"> No </Button>
+                                    <Button variant="primary" onClick={this.handleClickNo} id={user.userId}> No </Button>
                                 </Accordion.Body>
 
                             </Accordion>

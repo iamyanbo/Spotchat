@@ -99,8 +99,7 @@ class Orientation extends React.Component<{}, any> {
     }
 
     render() {
-        const user: any = localStorage.getItem("user");
-        if (user.sex !== "") {
+        if (this.state.user.sex !== "") {
             window.location.href = "/home";
         }
         const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

@@ -12,10 +12,27 @@ userController.use(express.json());
 
 const updateAcceptedUsers = async (userId: string, acceptedUser: string) => {
     const user: any = await DI.em.findOne(User, { userId: userId });
-    console.log(user.acceptedUsers);
+    for (let i = 0; i < user.recommendedUsers.length; i++) {
+        if (user.recommendedUsers[i].userId === acceptedUser) {
+            user.recommendedUsers[i].splice(i, 1);
+        }
+    }
     user.acceptedUsers.push(acceptedUser);
     await DI.em.persistAndFlush(user);
+    return user.recommendedUsers;
 }
+
+const updateRejectedUsers = async (userId: string, rejectedUser: string) => {
+    const user: any = await DI.em.findOne(User, { userId: userId });
+    for (let i = 0; i < user.recommendedUsers.length; i++) {
+        if (user.recommendedUsers[i].userId === rejectedUser) {
+            user.recommendedUsers.splice(i, 1);
+        }
+    }
+    await DI.em.persist(user).flush();
+    return user.recommendedUsers;
+}
+
 
 // GET
 userController.get("/", async (req: Request, res: Response) => {
@@ -76,12 +93,22 @@ userController.patch("/accepted", async (req: Request, res: Response) => {
     try{
         const userId = req.body.userId;
         const acceptedUserId = req.body.acceptedUserId;
-        console.log(userId, acceptedUserId)
-        const updatedUser = await updateAcceptedUsers(userId, acceptedUserId);
-        if (updatedUser !== null) {
-            res.status(200).send(`${updatedUser} updated`);
+        const updatedUserRecommended = await updateAcceptedUsers(userId, acceptedUserId);
+        if (updatedUserRecommended !== null) {
+            res.status(200).json(updatedUserRecommended);
         } } catch (err) {
             res.status(500).json(err)
     }   
 });
 
+userController.patch("/rejected", async (req: Request, res: Response) => {
+    try{
+        const userId = req.body.userId;
+        const rejectedUserId = req.body.rejectedUserId;
+        const updatedUserRecommended = await updateRejectedUsers(userId, rejectedUserId);
+        if (updatedUserRecommended !== null) {
+            res.status(200).json(updatedUserRecommended);
+        } } catch (err) {
+            res.status(500).json(err)
+    }
+});

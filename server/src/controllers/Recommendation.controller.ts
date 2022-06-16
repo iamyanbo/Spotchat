@@ -102,6 +102,9 @@ recommendationController.get("/:id", async (req: Request, res: Response) => {
             });
             //get the top 5 users
             const topUsers = usersWithMusicUniqueFiltered.slice(0, 5);
+            //add topUsers to user.recommendedUsers
+            user.recommendedUsers = [...user.recommendedUsers, ...topUsers];
+            await DI.em.persist(user).flush();
             res.status(200).json(topUsers);
         }
     } catch(err) {

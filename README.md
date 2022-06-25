@@ -25,9 +25,7 @@ To run this project, install it locally using npm in both server and client fold
 //server
 $ cd server
 $ npm install
-$ cd src
-$ ts-node server.ts
-
+$ npm run dev
 //client
 $ cd client\Spotchat
 $ npm install

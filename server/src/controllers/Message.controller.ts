@@ -7,7 +7,8 @@ MessageController.use(express.json());
 
 //POST
 MessageController.post("/", (req: Request, res: Response) => {
-    const payload = req.body;
+    const payload = req.body.payload;
+    const channel = req.body.channel;
     pusher.trigger("chat", "message", payload);
     res.status(201).send(payload);
 });

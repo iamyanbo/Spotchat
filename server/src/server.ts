@@ -16,6 +16,7 @@ import cookieParser from 'cookie-parser';
 import { Db } from "mongodb";
 import Pusher from "pusher";
 import { MessageController } from "./controllers/Message.controller";
+import { PusherAuthController } from "./controllers/PusherAuth.controller";
 
 export const DI = {} as {
   server: http.Server;
@@ -59,6 +60,7 @@ export const init = (async () => {
   app.use("/logout", logoutController);
   app.use("/recommendations", recommendationController);
   app.use("/messages", MessageController);
+  app.use("/pusher/auth", PusherAuthController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

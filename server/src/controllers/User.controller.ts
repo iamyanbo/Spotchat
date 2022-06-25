@@ -56,6 +56,18 @@ userController.get("/:id", async (req: Request, res: Response) => {
     }
 });
 
+userController.get("/objectId/:id", async (req: Request, res: Response) => {
+    const userId = req?.params.id;
+    try{
+        const user = await DI.em.findOne(User, { _id: new ObjectId(userId) });
+        if(user){
+            res.status(200).json(user);
+        }
+    } catch(err) {
+        res.status(404).send(`user with id: ${userId} not found`);
+    }
+});
+
 // POST
 userController.post("/", async (req: Request, res: Response) => {
     try{

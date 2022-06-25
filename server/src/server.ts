@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController, recommendationController } from "./controllers";
-import http from "http";
+import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController, recommendationController, ChannelController } from "./controllers";
+import http, { createServer } from "http";
 import {
   EntityManager,
   EntityRepository,
@@ -15,8 +15,15 @@ import { User } from "./entities";
 import cookieParser from 'cookie-parser';
 import { Db } from "mongodb";
 import Pusher from "pusher";
-import { MessageController } from "./controllers/Message.controller";
-import { PusherAuthController } from "./controllers/PusherAuth.controller";
+import { Server } from "socket.io";
+
+export const io = new Server(5000);
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
 
 export const DI = {} as {
   server: http.Server;
@@ -59,8 +66,7 @@ export const init = (async () => {
   app.use("/callback", CallbackController);
   app.use("/logout", logoutController);
   app.use("/recommendations", recommendationController);
-  app.use("/messages", MessageController);
-  app.use("/pusher/auth", PusherAuthController);
+  app.use('/channels', ChannelController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

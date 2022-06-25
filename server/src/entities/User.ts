@@ -1,5 +1,6 @@
 import { Collection, Entity, ManyToMany, OneToMany, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
+import { Channel } from "./Channel";
 
 @Entity()
 export class User extends BaseEntity {
@@ -50,6 +51,9 @@ export class User extends BaseEntity {
 
   @Property({type: "String"})
   refreshToken: string;
+  
+  @ManyToMany(() => Channel , channel => channel.users)
+  channels = new Collection<Channel>(this);
 
   constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object
     , accessToken: string, refreshToken: string) {

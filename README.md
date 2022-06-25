@@ -17,7 +17,7 @@ Project is created with:
 * Bootstrap
 * Axios
 * Express
-* Pusher, Spotify API
+* Spotify API
 	
 ## Setup
 To run this project, install it locally using npm in both server and client folder
@@ -27,6 +27,7 @@ To run this project, install it locally using npm in both server and client fold
 $ cd server
 $ npm install
 $ npm run dev
+
 //client
 $ cd client\Spotchat
 $ npm install

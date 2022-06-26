@@ -3,7 +3,11 @@ import { BaseEntity } from "./BaseEntity";
 import { User } from "./User";
 
 interface message {
-    user: User;
+    user: {
+        userId: string;
+        name: string;
+        avatar: string;
+    }
     message: string;
     timestamp: Date;
 }

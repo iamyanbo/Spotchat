@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React from 'react';
+import { Button } from 'react-bootstrap';
 import { io } from 'socket.io-client';
+import { NavbarComponent } from './Navbar';
 
 class ChatRoom extends React.Component<{}, any> {
     constructor(props: any) {
@@ -49,6 +51,10 @@ class ChatRoom extends React.Component<{}, any> {
     render() {
         return (
             <div className="ChatRoom">
+            <NavbarComponent />
+            <Button href="/chatList" variant="primary">
+                Back to Chats
+            </Button>
             <section>
                 {this.state.chats.map((chat: any, index: number) => (
                     <div className="chat-message" key={index}>

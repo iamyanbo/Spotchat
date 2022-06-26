@@ -1,6 +1,6 @@
 import React from "react";
-import './ChatBox.css';
-export default ({ text, username, handleTextChange }: {text: string; username: string; handleTextChange: any}) => (
+
+export default ({ text, username, handleTextChange }: any) => (
   <div>
     <div className="row">
     <div className="col-xs-12">

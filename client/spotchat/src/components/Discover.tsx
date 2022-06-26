@@ -25,7 +25,7 @@ class Discover extends React.Component<{}, any> {
         super(props);
         this.state = {
             user: JSON.parse(localStorage.getItem('user')!),
-            reload: false,
+            reload: true,
         }
         this.handleClickYes = this.handleClickYes.bind(this);
         this.handleClickNo = this.handleClickNo.bind(this);
@@ -58,13 +58,16 @@ class Discover extends React.Component<{}, any> {
     }
 
     render() {
-        if (localStorage.getItem("relatedUsers") === null) {
+        if (this.state.reload) {
             axios.get("http://localhost:8080/recommendations/" + this.state.user.userId).then(res => {
+                console.log(res);
                 localStorage.setItem('relatedUsers', JSON.stringify(res.data));
+                this.setState({ reload: false });
             }).catch(err => {
                 console.log(err);
             });
         }
+        
         return (
             <div>
                 <NavbarComponent />

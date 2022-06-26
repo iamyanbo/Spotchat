@@ -24,7 +24,6 @@ class Home extends React.Component<{}, any>{
     }
     
     render(){
-        console.log(this.state.user);
         return(
             <div>
                 <NavbarComponent />

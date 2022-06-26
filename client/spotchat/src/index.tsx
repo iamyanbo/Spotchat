@@ -10,6 +10,8 @@ import { Logout } from './components/Logout';
 import Orientation from './components/Orientation';
 import Discover from './components/Discover';
 import "bootstrap/dist/css/bootstrap.css";
+import ChatList from './components/ChatList';
+import ChatRoom from './components/ChatRoom';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -27,6 +29,9 @@ root.render(
         <Route path="/orientation" element={<Orientation />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="*" element={<Navigate to="/home"/>} />
+        <Route path="/chatList" element={<ChatList />} /> 
+        <Route path="/chat/:id" element={<ChatRoom />} />
+        
       </Routes>
       ) : (
         <Routes>

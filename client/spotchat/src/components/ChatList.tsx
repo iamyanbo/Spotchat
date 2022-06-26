@@ -1,25 +1,65 @@
+import axios from "axios";
 import React from "react";
-import "./ChatList.css";
-export default ({ chats }: { chats: any}) => (
-  <ul>
-    {chats.map((chat: any) => {
-      return (
-        <div>
-          <div className="row show-grid">
-            <div className="col-xs-12">
+import { Button } from "react-bootstrap";
+import { NavbarComponent } from "./Navbar";
 
-              <div className="chatMessage">
-                <div key={chat.id} className="box">
-                  <p>
-                    <strong>{chat.username}</strong>
-                  </p>
-                  <p>{chat.message}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+class ChatList extends React.Component<{}, any> {
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            user: JSON.parse(localStorage.getItem("user")!),
+            chats: [],
+            channels: [],
+            matchedUsers: []
+        };
+        this.handleClick = this.handleClick.bind(this);
+    }
+    
+    async componentDidMount() {
+        const userId = this.state.user.userId;
+        const user = await axios.get(`http://localhost:8080/users/${userId}`);
+        this.setState({ user: user.data });
+        // make an array of channels from user.matchedUsers with user.userId and user.matchedUsers[i].userId in alphabetical order
+        const channels = user.data.matchedUsers.map((objectId: string) => {
+        if (user.data.id < objectId) {
+            return `${user.data.id}-${objectId}`;
+        } else {
+            return `${objectId}-${user.data.id}`
+        }
+        }).sort();
+        for (const channel of channels) {
+            await axios.post("http://localhost:8080/channels", {
+                channelId: channel,
+                userId1: channel.split("-")[0],
+                userId2: channel.split("-")[1]
+            });
+        }
+        
+
+        // add each channel to state.channels
+        this.setState({ channels: channels });
+    }
+
+    handleClick = (channelName: string) => {
+        window.location.href = "/chat/" + channelName;
+    }
+    
+    render() {
+        return (
+        <div>
+            <NavbarComponent />
+            {this.state.channels!.map((channel: string) => {
+                return (
+                    <div key={channel}>
+                        <Button variant="primary" onClick={() => this.handleClick(channel)}>
+                            {channel}
+                        </Button>
+                    </div>
+                );
+            
+            })}
         </div>
-      );
-    })}
-  </ul>
-);
+        );
+    }
+}
+export default ChatList;

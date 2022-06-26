@@ -15,6 +15,7 @@ Project is created with:
 * MikroORM
 * React
 * Bootstrap
+* Socket.IO
 * Axios
 * Express
 * Spotify API

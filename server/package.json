@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/server",
-    "dev": "ts-node-dev --respawn src/index.ts"
+    "dev": "ts-node-dev --respawn src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -52,7 +52,7 @@
   "mikro-orm": {
     "useTsNode": true,
     "configPaths": [
-      "./app/mikro-orm.config.ts",
+      "./src/mikro-orm.config.ts",
       "./dist/mikro-orm.config.js"
     ]
   }

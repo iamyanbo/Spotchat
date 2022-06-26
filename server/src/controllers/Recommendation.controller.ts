@@ -48,7 +48,7 @@ export const getRelatedArtistsMusic = async (artistId: string, popularity: numbe
 }
 
 //need to update so it takes into account their gender
-export const getRelatedUsers = async (relatedMusic: any) => {
+export const getRelatedUsers = async (relatedMusic: any, userAct: any) => {
     //get the users that have the same music in their top tracks
     const users = await DI.em.find(User, {});
     const usersWithMusic = users.filter((user: any) => {
@@ -58,7 +58,15 @@ export const getRelatedUsers = async (relatedMusic: any) => {
             });
         });
     });
-    return usersWithMusic;
+    //filter out users with age difference between two years of userAct
+    const userAgefilter = usersWithMusic.filter((user: any) => {
+        return user.age >= userAct.age - 2 && user.age <= userAct.age + 2;
+    })
+    //filter out users depending on their "InterestedIn" and "sex"
+    const usersWithPreference = userAgefilter.filter((user: any) =>{
+        return user.sex === userAct.InterestedIn && user.InterestedIn === userAct.sex;
+    })
+    return usersWithPreference
 }
 
 //GET
@@ -87,11 +95,11 @@ recommendationController.get("/:id", async (req: Request, res: Response) => {
             const relatedMusicUse4 = relatedMusic4.concat(top4);
             const relatedMusicUse5 = relatedMusic5.concat(top5);
             //get the users that have the same music in their top tracks
-            const users = await getRelatedUsers(relatedMusicUse1);
-            const users2 = await getRelatedUsers(relatedMusicUse2);
-            const users3 = await getRelatedUsers(relatedMusicUse3);
-            const users4 = await getRelatedUsers(relatedMusicUse4);
-            const users5 = await getRelatedUsers(relatedMusicUse5);
+            const users = await getRelatedUsers(relatedMusicUse1, user);
+            const users2 = await getRelatedUsers(relatedMusicUse2, user);
+            const users3 = await getRelatedUsers(relatedMusicUse3, user);
+            const users4 = await getRelatedUsers(relatedMusicUse4, user);
+            const users5 = await getRelatedUsers(relatedMusicUse5, user);
             //get the users that have the same music in their top tracks
             const usersWithMusic = users.concat(users2).concat(users3).concat(users4).concat(users5);
             const set = new Set(usersWithMusic);

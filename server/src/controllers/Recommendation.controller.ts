@@ -102,10 +102,17 @@ recommendationController.get("/:id", async (req: Request, res: Response) => {
             });
             //get the top 5 users
             const topUsers = usersWithMusicUniqueFiltered.slice(0, 5);
-            //add topUsers to user.recommendedUsers
-            user.recommendedUsers = [...user.recommendedUsers, ...topUsers];
-            await DI.em.persist(user).flush();
-            res.status(200).json(topUsers);
+            //add the top 5 users to user.recommendedUsers
+            for (const user1 of topUsers) {
+                if (!user.acceptedUsers.contains(user1) && !user.rejectedUsers.contains(user1)) {
+                    user.recommendedUsers.add(user1);
+                }
+            }
+            //remove user from recommendedUsers
+            user.recommendedUsers.remove(user);
+            //save the user
+            await DI.em.persistAndFlush(user);
+            res.status(200).json(user.recommendedUsers.toArray());
         }
     } catch(err) {
         console.log(err)

@@ -1,5 +1,6 @@
-import { Collection, Entity, OneToMany, Property } from "@mikro-orm/core";
+import { Collection, Entity, ManyToMany, OneToMany, Property } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity";
+import { Channel } from "./Channel";
 
 @Entity()
 export class User extends BaseEntity {
@@ -33,17 +34,26 @@ export class User extends BaseEntity {
   @Property({type: String})
   profilePicture: string;
 
-  @Property({type: Array})
-  recommendedUsers: Array<User>;
+  @ManyToMany(() => User)
+  recommendedUsers = new Collection<User>(this);
 
-  @Property({type: Array})
-  acceptedUsers: Array<string>;
+  @ManyToMany(() => User)
+  acceptedUsers = new Collection<User>(this);
+
+  @ManyToMany(() => User)
+  rejectedUsers = new Collection<User>(this);
+
+  @ManyToMany(() => User)
+  matchedUsers = new Collection<User>(this);
 
   @Property({type: "String"})
   accessToken: string;
 
   @Property({type: "String"})
   refreshToken: string;
+  
+  @ManyToMany(() => Channel , channel => channel.users)
+  channels = new Collection<Channel>(this);
 
   constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object
     , accessToken: string, refreshToken: string) {
@@ -60,7 +70,5 @@ export class User extends BaseEntity {
     this.profilePicture = "";
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    this.recommendedUsers = [];
-    this.acceptedUsers = [];
   }
 }

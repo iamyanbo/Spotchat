@@ -10,29 +10,29 @@ export const userController = express.Router();
 
 userController.use(express.json());
 
-const updateAcceptedUsers = async (userId: string, acceptedUser: string) => {
-    const user: any = await DI.em.findOne(User, { userId: userId });
-    for (let i = 0; i < user.recommendedUsers.length; i++) {
-        if (user.recommendedUsers[i].userId === acceptedUser) {
-            user.recommendedUsers[i].splice(i, 1);
+const updateAcceptedUsers = async (user: any, acceptedUser: any) => {
+    for (const u of user.recommendedUsers) {
+        if (u.userId === acceptedUser.userId) {
+            user.recommendedUsers.remove(u);
+            break;
         }
     }
-    user.acceptedUsers.push(acceptedUser);
+    user.acceptedUsers.add(acceptedUser);
     await DI.em.persistAndFlush(user);
-    return user.recommendedUsers;
+    return user.recommendedUsers.toArray();
 }
 
-const updateRejectedUsers = async (userId: string, rejectedUser: string) => {
-    const user: any = await DI.em.findOne(User, { userId: userId });
-    for (let i = 0; i < user.recommendedUsers.length; i++) {
-        if (user.recommendedUsers[i].userId === rejectedUser) {
-            user.recommendedUsers.splice(i, 1);
+const updateRejectedUsers = async (user: any, rejectedUser: any) => {
+    for (const u of user.recommendedUsers) {
+        if (u.userId === rejectedUser.userId) {
+            user.recommendedUsers.remove(u);
+            break;
         }
     }
-    await DI.em.persist(user).flush();
-    return user.recommendedUsers;
+    user.rejectedUsers.add(rejectedUser);
+    await DI.em.persistAndFlush(user);
+    return user.recommendedUsers.toArray();
 }
-
 
 // GET
 userController.get("/", async (req: Request, res: Response) => {
@@ -48,6 +48,18 @@ userController.get("/:id", async (req: Request, res: Response) => {
     const userId = req?.params.id;
     try{
         const user = await DI.em.findOne(User, { userId: userId });
+        if(user){
+            res.status(200).json(user);
+        }
+    } catch(err) {
+        res.status(404).send(`user with id: ${userId} not found`);
+    }
+});
+
+userController.get("/objectId/:id", async (req: Request, res: Response) => {
+    const userId = req?.params.id;
+    try{
+        const user = await DI.em.findOne(User, { _id: new ObjectId(userId) });
         if(user){
             res.status(200).json(user);
         }
@@ -93,7 +105,16 @@ userController.patch("/accepted", async (req: Request, res: Response) => {
     try{
         const userId = req.body.userId;
         const acceptedUserId = req.body.acceptedUserId;
-        const updatedUserRecommended = await updateAcceptedUsers(userId, acceptedUserId);
+        const user = await DI.em.findOne(User, { userId: userId });
+        const acceptedUser = await DI.em.findOne(User, { userId: acceptedUserId });
+        const updatedUserRecommended = await updateAcceptedUsers(user, acceptedUser);
+        //check if user is in acceptedUser's acceptedUsers and vice versa
+        if (user!.acceptedUsers.contains(acceptedUser!) && acceptedUser!.acceptedUsers.contains(user!)) {
+            user!.matchedUsers.add(acceptedUser!);
+            acceptedUser!.matchedUsers.add(user!);
+            await DI.em.persistAndFlush(user!);
+            await DI.em.persistAndFlush(acceptedUser!);
+        }
         if (updatedUserRecommended !== null) {
             res.status(200).json(updatedUserRecommended);
         } } catch (err) {
@@ -105,10 +126,13 @@ userController.patch("/rejected", async (req: Request, res: Response) => {
     try{
         const userId = req.body.userId;
         const rejectedUserId = req.body.rejectedUserId;
-        const updatedUserRecommended = await updateRejectedUsers(userId, rejectedUserId);
+        const user = await DI.em.findOne(User, { userId: userId });
+        const rejectedUser = await DI.em.findOne(User, { userId: rejectedUserId });
+        const updatedUserRecommended = await updateRejectedUsers(user, rejectedUser);
         if (updatedUserRecommended !== null) {
             res.status(200).json(updatedUserRecommended);
         } } catch (err) {
             res.status(500).json(err)
     }
 });
+

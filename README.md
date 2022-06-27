@@ -1,4 +1,4 @@
-# spotifyChat
+# SpotChat
 
 ## Table of contents
 * [General info](#general-info)
@@ -6,7 +6,7 @@
 * [Setup](#setup)
 
 ## General info
-The project utilizes Spotify API and through a recommendation system, creates a match with other users on the platform based off their top tracks and playlists.
+The project utilizes Spotify API and through a recommendation system, creates a match with other users on the platform based off their top tracks and playlists which allows individuals with similar preferences to communicate.
 	
 ## Technologies
 Project is created with:

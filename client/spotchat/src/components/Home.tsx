@@ -27,8 +27,7 @@ class Home extends React.Component<{}, any>{
         return(
             <div>
                 <NavbarComponent />
-                <h1>Home</h1>
-                <ButtonToolbar style={{display: "flex", justifyContent: "center"}}>
+                <ButtonToolbar style={{display: "flex", justifyContent: "center", marginTop:"1%"}}>
                     <ButtonGroup>
                         <Button variant="primary" onClick={this.handleClick1}>Albums</Button>
                         <Button variant="primary" onClick={this.handleClick2}>Top Tracks</Button>

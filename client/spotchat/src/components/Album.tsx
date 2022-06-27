@@ -33,7 +33,7 @@ class Album extends React.Component<{}, any>{
             <div className="row" style={{display:"flex", alignContent:"center", justifyContent:"center"}}>
                 {this.state.user.albums.items.map((album: album) => {
                 return (
-                    <Card style={{width: "15rem", margin:"0.8rem", paddingLeft:"0px", paddingRight:"0px"}} key={album.id}>
+                    <Card style={{width: "18rem", margin:"0.8rem", paddingLeft:"0px", paddingRight:"0px"}} key={album.id}>
                         <Card.Header style={{background:(album.public? "#98FB98": "#FAA0A0")}}>{album.public? "Public" : "Private"}</Card.Header>
                         <Card.Body>
                             <Card.Title>{album.name}</Card.Title>

@@ -32,7 +32,7 @@ class Login extends React.Component<{},any>{
         if (this.state.error) {
             return <div>{this.state.error.message}</div>;
         } else if (this.state.loggedIn && localStorage.getItem('loggedIn') === 'true') {
-            if (localStorage.getItem('userDetails') === 'true') {
+            if (JSON.parse(localStorage.getItem('user')!).sex !== '') {
                 window.location.href = "/home";
             } else {
                 window.location.href = "/orientation";
@@ -42,7 +42,7 @@ class Login extends React.Component<{},any>{
                 <div>
                     <h1 style={{ textAlign: 'center', marginTop: "20%"}}>SpotChat</h1>
                     <>
-                        <Button variant="primary" href={`http://localhost:8080/auth`} style={{ margin: 'auto', display: 'block', width: '20%', height: '50px', fontSize: '20px', marginTop: "2%"}}>
+                        <Button variant="primary" href={`http://localhost:8080/auth`} style={{ margin: 'auto', display: 'block', width: '20%', height: '20%', fontSize: '100%', marginTop: "2%"}}>
                             <img src={SpotifyLogo} style={{ width: '30px', height: '30px', marginRight: '10px'}} />
                             Start Chatting using Spotify
                         </Button>

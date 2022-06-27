@@ -9,6 +9,7 @@ class ChatList extends React.Component<{}, any> {
         this.state = {
             user: JSON.parse(localStorage.getItem("user")!),
             chats: [],
+            channelsDisplay: [],
             channels: [],
             matchedUsers: []
         };
@@ -26,6 +27,7 @@ class ChatList extends React.Component<{}, any> {
         } else {
             return `${objectId}-${user.data.id}`
         }
+
         }).sort();
         for (const channel of channels) {
             await axios.post("http://localhost:8080/channels", {
@@ -34,10 +36,12 @@ class ChatList extends React.Component<{}, any> {
                 userId2: channel.split("-")[1]
             });
         }
-        
-
-        // add each channel to state.channels
         this.setState({ channels: channels });
+        user.data.matchedUsers.forEach((objectId: string) => {
+            axios.get(`http://localhost:8080/users/objectId/${objectId}`).then(res => {
+                this.setState({ channelsDisplay: [...this.state.channelsDisplay, res.data.aboutMe.display_name] });
+            })
+        });
     }
 
     handleClick = (channelName: string) => {
@@ -48,10 +52,10 @@ class ChatList extends React.Component<{}, any> {
         return (
         <div>
             <NavbarComponent />
-            {this.state.channels!.map((channel: string) => {
+            {this.state.channelsDisplay!.map((channel: string) => {
                 return (
                     <div key={channel}>
-                        <Button variant="primary" onClick={() => this.handleClick(channel)}>
+                        <Button variant="primary" onClick={() => this.handleClick(this.state.channels[this.state.channelsDisplay!.indexOf(channel)])}>
                             {channel}
                         </Button>
                     </div>

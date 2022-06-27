@@ -67,13 +67,12 @@ class Discover extends React.Component<{}, any> {
                 console.log(err);
             });
         }
-        
         return (
+
             <div>
                 <NavbarComponent />
-                <h1>Discover</h1>
                 <div>
-                    {localStorage.getItem('relatedUsers') ? JSON.parse(localStorage.getItem('relatedUsers')!).map((user: User) => {
+                    {JSON.parse(localStorage.getItem('relatedUsers')!).length !== 0 ? JSON.parse(localStorage.getItem('relatedUsers')!).map((user: User) => {
                         return <div key={user.userId}> 
                         <Accordion>
                                 <Accordion.Header>
@@ -94,8 +93,10 @@ class Discover extends React.Component<{}, any> {
                             
                         </div>
                     }
-                    ) : null}
-
+                    ) : 
+                    <div className="text-center">
+                        <h1>No users found</h1>
+                    </div>}
                 </div>
             </div>
         );

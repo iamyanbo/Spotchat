@@ -51,25 +51,23 @@ class ChatRoom extends React.Component<{}, any> {
     render() {
         return (
             <div className="ChatRoom">
-            <NavbarComponent />
-            <Button href="/chatList" variant="primary">
-                Back to Chats
-            </Button>
-            <section>
-                {this.state.chats.map((chat: any, index: number) => (
-                    <div className="chat-message" key={index}>
-                        <div className="chat-message-user">{chat.user.name}</div>
-                        <div className="chat-message-text">{chat.message}</div>
-                    </div>
-                ))}
-                <input
-            type="text"
-            value={this.state.text}
-            placeholder="chat here..."
-            className="form-control"
-            onChange={this.handleTextChange}
-            onKeyDown={this.handleTextChange}
-          />
+                <NavbarComponent />
+                <Button href="/chatList" variant="primary">Back</Button>
+                <section>
+                    {this.state.chats.map((chat: any, index: number) => (
+                        <div className="chat-message" key={index}>
+                            <div className="chat-message-user">{chat.user.name}</div>
+                            <div className="chat-message-text">{chat.message}</div>
+                        </div>
+                    ))}
+                    <input
+                type="text"
+                value={this.state.text}
+                placeholder="chat here..."
+                className="form-control"
+                onChange={this.handleTextChange}
+                onKeyDown={this.handleTextChange}
+            />
             </section>
           </div>
         );

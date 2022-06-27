@@ -34,3 +34,5 @@ $ cd client\Spotchat
 $ npm install
 $ npm start
 ```
+## License
+[MIT](https://choosealicense.com/licenses/mit/)

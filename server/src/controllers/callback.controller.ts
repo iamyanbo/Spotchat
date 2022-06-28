@@ -14,6 +14,19 @@ const redirect_uri = 'http://localhost:8080/callback';
 const buffer = Buffer.from(client_id + ':' + client_secret).toString('base64');
 const stateKey = 'spotify_auth_state';
 
+export const refreshAccessToken = async (refreshToken: string) => {
+    const response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken
+    }), {
+        headers: {
+            'Authorization': 'Basic ' + buffer,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    });
+    return response.data.access_token;
+}
+
 export const saveUser = async (user: any, accessToken: string, refreshToken: string) => {
   const newUser = new User(user.about.id,
     user.about,
@@ -79,7 +92,7 @@ const getToken = async (code: any) => {
   }
 }
 
-const getData = async (token: string) => {
+const getData: any = async (token: string, refreshToken: string) => {
   const spotifyEndpoints = ['https://api.spotify.com/v1/me',
    'https://api.spotify.com/v1/me/playlists', 
    'https://api.spotify.com/v1/me/albums', 
@@ -116,12 +129,17 @@ const getData = async (token: string) => {
     }
   }))
   .catch(function (error: any) {
-    console.log(error);
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return getData(newToken, refreshToken)
+        })
+    }
   });
 }
 
 //save song by using the song id to database
-export const saveSongById = async (songId: string, token: string, album?: Album) => {
+export const saveSongById: any = async (songId: string, token: string, refreshToken: string, album?: Album) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/tracks/' + songId, {
       headers: {
@@ -148,13 +166,18 @@ export const saveSongById = async (songId: string, token: string, album?: Album)
         return song;
       }
     }
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveSongById(songId, newToken, refreshToken, album)
+        })
+    }
   }
 }
 
 //save artist by using the artist id to database and return the artist
-export const saveArtistById = async (artistId: string, token: string, song?: Song) => {
+export const saveArtistById: any = async (artistId: string, token: string, refreshToken: string, song?: Song) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/artists/' + artistId, {
       headers: {
@@ -176,13 +199,18 @@ export const saveArtistById = async (artistId: string, token: string, song?: Son
       }
       return artist;
     }
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveArtistById(artistId, newToken, refreshToken, song)
+        })
+    }
   }
 }
 
 //save album by using the album id to database and return the album
-export const saveAlbumById = async (albumId: any, token: string) => {
+export const saveAlbumById: any = async (albumId: any, token: string, refreshToken: string) => {
   try {
     const response = await axios.get('https://api.spotify.com/v1/albums/' + albumId, {
       headers: {
@@ -203,73 +231,96 @@ export const saveAlbumById = async (albumId: any, token: string) => {
       await DI.em.persist(newAlbum).flush();
       return newAlbum;
     }
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveAlbumById(albumId, newToken, refreshToken)
+        })
+    }
   }
 }
 
 //save artist to database
-export const saveArtist = async (artistName: string, token: string, song?: Song) => {
-  const artist = await axios.get(`https://api.spotify.com/v1/search?q=${artistName}&type=artist`, {
-    headers: {
-      'Authorization': 'Bearer ' + token
+export const saveArtist: any = async (artistName: string, token: string, refreshToken: string, song?: Song) => {
+  try {
+    const artist = await axios.get(`https://api.spotify.com/v1/search?q=${artistName}&type=artist`, {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    });
+    const artistId = artist.data.artists.items[0].id;
+    const artistDatabase = await DI.em.findOne(Artist, { artistId: artistId });
+    if (artistDatabase === null) {
+      const newArtist = new Artist(artist.data.artists.items[0].name, artistId);
+      if (typeof song !== 'undefined') {
+        newArtist.songs.add(song);
+      }
+        await DI.em.persist(newArtist).flush();
+      return newArtist;
+    } else {
+      if (typeof song !== 'undefined') {
+        artistDatabase.songs.add(song);
+        await DI.em.persist(artistDatabase).flush();
+      }
+      return artistDatabase;
     }
-  });
-  const artistId = artist.data.artists.items[0].id;
-  const artistDatabase = await DI.em.findOne(Artist, { artistId: artistId });
-  if (artistDatabase === null) {
-    const newArtist = new Artist(artist.data.artists.items[0].name, artistId);
-    if (typeof song !== 'undefined') {
-      newArtist.songs.add(song);
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveArtist(artistName, newToken, refreshToken, song)
+        })
     }
-      await DI.em.persist(newArtist).flush();
-    return newArtist;
-  } else {
-    if (typeof song !== 'undefined') {
-      artistDatabase.songs.add(song);
-      await DI.em.persist(artistDatabase).flush();
-    }
-    return artistDatabase;
   }
 }
 
 //save song to database and return the song
 //use this one for when a user searches for a song by name
-export const saveSong = async (songName: string, token: string, album?: Album) => {
-  const response = await axios.get(`https://api.spotify.com/v1/search?q=${songName}&type=track`, {
-    headers: {
-      'Authorization': 'Bearer ' + token
-    }
-  });
-  const songId = response.data.tracks.items[0].id;
-  const songDatabase = await DI.em.findOne(Song, { songId: songId });
-  if (songDatabase === null) {
-    const newSong = new Song(response.data.tracks.items[0].name, songId);
-    if (typeof album !== 'undefined') {
-      newSong.album = album;
-      response.data.tracks.artists.forEach(async (artist: any) => {
-        await saveArtistById(artist.id, token, newSong);
-    });
-      await DI.em.persist(newSong).flush();
-    return newSong;
-    } else {
-      if (typeof response.data.tracks.items[0].album !== 'undefined') {
-        await saveAlbumById(response.data.tracks.items[0].album.id, token);
+export const saveSong: any = async (songName: string, token: string, refreshToken: string, album?: Album) => {
+  try {
+    const response = await axios.get(`https://api.spotify.com/v1/search?q=${songName}&type=track`, {
+      headers: {
+        'Authorization': 'Bearer ' + token
       }
-      await DI.em.persist(newSong).flush();
+    });
+    const songId = response.data.tracks.items[0].id;
+    const songDatabase = await DI.em.findOne(Song, { songId: songId });
+    if (songDatabase === null) {
+      const newSong = new Song(response.data.tracks.items[0].name, songId);
+      if (typeof album !== 'undefined') {
+        newSong.album = album;
+        response.data.tracks.artists.forEach(async (artist: any) => {
+          await saveArtistById(artist.id, token, newSong);
+      });
+        await DI.em.persist(newSong).flush();
       return newSong;
+      } else {
+        if (typeof response.data.tracks.items[0].album !== 'undefined') {
+          await saveAlbumById(response.data.tracks.items[0].album.id, token);
+        }
+        await DI.em.persist(newSong).flush();
+        return newSong;
+      }
+    } else {
+      if (typeof album !== 'undefined') {
+        songDatabase.album = album;
+        await DI.em.persist(songDatabase).flush();
+      }
+      return songDatabase;
     }
-  } else {
-    if (typeof album !== 'undefined') {
-      songDatabase.album = album;
-      await DI.em.persist(songDatabase).flush();
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveSong(songName, newToken, refreshToken, album)
+        })
     }
-    return songDatabase;
   }
 }
 
 //save album in database
-export const saveAlbum = async (albumname: any, token: string) => {
+export const saveAlbum: any = async (albumname: any, token: string, refreshToken: string) => {
   try {
     const response = await axios.get(`https://api.spotify.com/v1/search?q=${albumname}&type=album&limit=1`, {
       headers: {
@@ -301,8 +352,13 @@ export const saveAlbum = async (albumname: any, token: string) => {
         return newAlbum;
       }
     }
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    if (error.response.status === 401) {
+      return refreshAccessToken(refreshToken)
+        .then(async (newToken: string) => {
+          return saveAlbum(albumname, newToken, refreshToken)
+        })
+    }
   }
 }
 
@@ -316,7 +372,7 @@ router.get('/', (req: Request, res: Response) => {
   } else {
     res.clearCookie(stateKey);
     getToken(code).then(async (response1: any) => {
-      getData(response1.accessToken).then((response2: any) => {
+      getData(response1.accessToken, response1.refreshToken).then((response2: any) => {
         console.log(response1.accessToken);
         saveUser(response2, response1.accessToken, response1.refreshToken).then((userResponse: User) => {
           if (userResponse !== null) {

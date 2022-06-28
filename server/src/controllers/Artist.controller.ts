@@ -38,7 +38,8 @@ artistController.post("/", async (req: Request, res: Response) => {
     try{
         const newartistName = req.body.name;
         const token = req.body.token;
-        const artist = await saveArtist(newartistName, token);
+        const refreshToken = req.body.refreshToken;
+        const artist = await saveArtist(newartistName, token, refreshToken);
         if (artist) {
             res.status(201).send(`${artist} created`);
         } else {

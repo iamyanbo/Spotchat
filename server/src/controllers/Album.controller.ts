@@ -38,7 +38,8 @@ albumController.post("/", async (req: Request, res: Response) => {
     try{
         const newAlbumName = req.body.name;
         const token = req.body.token;
-        const album = await saveAlbum(newAlbumName, token);
+        const refreshToken = req.body.refreshToken;
+        const album = await saveAlbum(newAlbumName, token, refreshToken);
         if (album) {
             res.status(201).send(`${album} created`);
         } else {

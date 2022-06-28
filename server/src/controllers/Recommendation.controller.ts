@@ -2,29 +2,30 @@ import express, { Request, Response } from "express";
 import { DI } from "../server";
 import { User } from "../entities";
 import axios from "axios";
+import { refreshAccessToken } from "./callback.controller";
 
 // Global Config
 export const recommendationController = express.Router();
 
 recommendationController.use(express.json());
 
-export const getRelatedArtistsMusic = async (artistId: string, popularity: number, songId: string, accessToken: string) => {
-
-    const response = await axios.get('https://api.spotify.com/v1/artists/' + artistId + '/related-artists', {
-        headers: {
-            'Authorization': 'Bearer ' + accessToken
-            }
-        });
-    const relatedArtists = response.data.artists.slice(0,1);
-    const relatedArtistsTracks = await Promise.all(relatedArtists.map(async (artist: any) => {
-        //axios call to get top tracks with market as ES
-        const response = await axios.get('https://api.spotify.com/v1/artists/' + artist.id + '/top-tracks?market=ES', {
+export const getRelatedArtistsMusic: any = async (artistId: string, popularity: number, songId: string, accessToken: string, refreshToken: string) => {
+    try{
+        const response = await axios.get('https://api.spotify.com/v1/artists/' + artistId + '/related-artists', {
             headers: {
                 'Authorization': 'Bearer ' + accessToken
-            }
-        });
-        return response.data.tracks;
-    }));
+                }
+            });
+        const relatedArtists = response.data.artists.slice(0,1);
+        const relatedArtistsTracks = await Promise.all(relatedArtists.map(async (artist: any) => {
+            //axios call to get top tracks with market as ES
+            const response = await axios.get('https://api.spotify.com/v1/artists/' + artist.id + '/top-tracks?market=ES', {
+                headers: {
+                    'Authorization': 'Bearer ' + accessToken
+                }
+            });
+            return response.data.tracks;
+        }));
     //get the tracks with a popularity within 5 points of "popularity"
     const relatedArtistsTracksPopularity = relatedArtistsTracks.map((tracks: any) => {
         return tracks.filter((track: any) => {
@@ -45,6 +46,15 @@ export const getRelatedArtistsMusic = async (artistId: string, popularity: numbe
     }
     );
     return relatedTracksShrinked;
+    } catch(err: any) {
+        if (err.response.status === 401) {
+            return refreshAccessToken(refreshToken)
+                .then(async (newAccessToken: string) => {
+                    return getRelatedArtistsMusic(artistId, popularity, songId, newAccessToken, refreshToken);
+                }
+            );
+        }
+    }
 }
 
 //need to update so it takes into account their gender
@@ -83,11 +93,11 @@ recommendationController.get("/:id", async (req: Request, res: Response) => {
             const top4 = topTracks.items[3]
             const top5 = topTracks.items[4]
             //get the related artists' music of the top 5 tracks
-            const relatedMusic1 = await getRelatedArtistsMusic(top1.artists[0].id, top1.popularity, top1.id, user.accessToken);
-            const relatedMusic2 = await getRelatedArtistsMusic(top2.artists[0].id, top2.popularity, top2.id, user.accessToken);
-            const relatedMusic3 = await getRelatedArtistsMusic(top3.artists[0].id, top3.popularity, top3.id, user.accessToken);
-            const relatedMusic4 = await getRelatedArtistsMusic(top4.artists[0].id, top4.popularity, top4.id, user.accessToken);
-            const relatedMusic5 = await getRelatedArtistsMusic(top5.artists[0].id, top5.popularity, top5.id, user.accessToken);
+            const relatedMusic1 = await getRelatedArtistsMusic(top1.artists[0].id, top1.popularity, top1.id, user.accessToken, user.refreshToken);
+            const relatedMusic2 = await getRelatedArtistsMusic(top2.artists[0].id, top2.popularity, top2.id, user.accessToken, user.refreshToken);
+            const relatedMusic3 = await getRelatedArtistsMusic(top3.artists[0].id, top3.popularity, top3.id, user.accessToken, user.refreshToken);
+            const relatedMusic4 = await getRelatedArtistsMusic(top4.artists[0].id, top4.popularity, top4.id, user.accessToken, user.refreshToken);
+            const relatedMusic5 = await getRelatedArtistsMusic(top5.artists[0].id, top5.popularity, top5.id, user.accessToken, user.refreshToken);
             //add top 5 tracks to the related music
             const relatedMusicUse1 = relatedMusic1.concat(top1);
             const relatedMusicUse2 = relatedMusic2.concat(top2);

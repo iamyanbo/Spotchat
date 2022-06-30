@@ -136,3 +136,20 @@ userController.patch("/rejected", async (req: Request, res: Response) => {
     }
 });
 
+userController.patch("/cancelMatch", async (req: Request, res: Response) => {
+    try{
+        const userId = req.body.userId;
+        const matchedUserId = req.body.matchedUserId;
+        const user = await DI.em.findOne(User, { userId: userId });
+        const matchedUser = await DI.em.findOne(User, { userId: matchedUserId });
+        user!.rejectedUsers.add(matchedUser!);
+        matchedUser!.rejectedUsers.add(user!);
+        user!.matchedUsers.remove(matchedUser!);
+        matchedUser!.matchedUsers.remove(user!);
+        await DI.em.persistAndFlush(user!);
+        await DI.em.persistAndFlush(matchedUser!);
+        res.status(200).send(`${user} updated`);
+    } catch (err) {
+        res.status(500).json(err)
+    }
+});

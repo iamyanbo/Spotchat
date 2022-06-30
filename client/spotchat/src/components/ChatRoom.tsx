@@ -46,6 +46,7 @@ class ChatRoom extends React.Component<{}, any> {
                 profilePicture: '',
                 birthday: '',
                 bio: '',
+                userId: ''
             },
             userSelf: {
                 displayName: '',
@@ -53,6 +54,7 @@ class ChatRoom extends React.Component<{}, any> {
                 profilePicture: '',
                 birthday: '',
                 bio: '',
+                userId: ''
             },
             show: false,
             selectedUser: {
@@ -61,6 +63,7 @@ class ChatRoom extends React.Component<{}, any> {
                 profilePicture: '',
                 birthday: '',
                 bio: '',
+                userId: ''
             },
             scroll: true
         }
@@ -73,6 +76,8 @@ class ChatRoom extends React.Component<{}, any> {
         this.scroll = this.scroll.bind(this);
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.getAge = this.getAge.bind(this);
+        this.cancleMatch = this.cancleMatch.bind(this);
     }
 
     async componentDidMount() {
@@ -86,14 +91,16 @@ class ChatRoom extends React.Component<{}, any> {
                 spotifyUrl: user2.data.aboutMe.external_urls.spotify,
                 profilePicture: user2.data.profilePicture,
                 birthday: user2.data.birthday,
-                bio: user2.data.bio
+                bio: user2.data.bio,
+                userId: user2.data.userId
             }});
             this.setState({ userSelf: {
                 displayName: user1.data.aboutMe.display_name,
                 spotifyUrl: user1.data.aboutMe.external_urls.spotify,
                 profilePicture: user1.data.profilePicture,
                 birthday: user1.data.birthday,
-                bio: user1.data.bio
+                bio: user1.data.bio,
+                userId: user1.data.userId
             }});
         } else {
             this.setState({ userOther: {
@@ -101,14 +108,16 @@ class ChatRoom extends React.Component<{}, any> {
                 spotifyUrl: user1.data.aboutMe.external_urls.spotify,
                 profilePicture: user1.data.profilePicture,
                 birthday: user1.data.birthday,
-                bio: user1.data.bio
+                bio: user1.data.bio,
+                userId: user1.data.userId
             }});
             this.setState({ userSelf: {
                 displayName: user2.data.aboutMe.display_name,
                 spotifyUrl: user2.data.aboutMe.external_urls.spotify,
                 profilePicture: user2.data.profilePicture,
                 birthday: user2.data.birthday,
-                bio: user2.data.bio
+                bio: user2.data.bio,
+                userId: user2.data.userId
             }});
         }
     }
@@ -168,10 +177,11 @@ class ChatRoom extends React.Component<{}, any> {
     handleShow(userself: boolean) {
         if (userself) {
             this.setState({ selectedUser: this.state.userSelf });
+            this.setState({ show: false });
         } else {
             this.setState({ selectedUser: this.state.userOther });
+            this.setState({ show: true });
         }
-        this.setState({ show: true });
         this.setState({ scroll: false });
     }
 
@@ -180,20 +190,61 @@ class ChatRoom extends React.Component<{}, any> {
 
     }
 
+    getAge(birthday: string) {
+        const today = new Date();
+        const birthDate = new Date(birthday);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    cancleMatch = async () => {
+        if (window.confirm("Are you sure you want to cancel this match?")) {
+            await axios.patch("http://localhost:8080/users/cancelMatch", {
+                userId: this.state.userId,
+                matchedUserId: this.state.selectedUser.userId
+            });
+            window.location.href = "/chatList"
+        } else {
+            return;
+        }
+        //axios.patch("http://localhost:8080/users/cancelMatch", {
+        //    userId: this.state.userId,
+        //    matchedUserId: this.state.userOther.userId
+        //}).then((res: any) => {
+        //    console.log(res)
+        //}).catch((err: any) => {
+        //    console.log(err)
+        //});
+        //window.location.href = "/chatList";
+    }
+
     render() {
         return (
             <div className="ChatRoom">
                 <NavbarComponent />
                 <Button href="/chatList" variant="outline-secondary" style={{margin: "10px", position: "fixed"}}>Back to Chat List</Button>
                 <section style={{display: "inline-block", width: "100%", marginTop:"5%", marginBottom:"5%"}}>
-                    <Offcanvas show={this.state.show} onHide={this.handleClose}>
-                        <Offcanvas.Title style={{textAlign: "center", margin: "10px"}}>
-                            {this.state.selectedUser.displayName}
-                        </Offcanvas.Title>
+                    <Offcanvas show={this.state.show} onHide={this.handleClose} placement={'end'}>
+                        <Offcanvas.Header closeButton>
+                            <Offcanvas.Title style={{margin: "10px", left: "25%", position: "absolute"}}>
+                                {this.state.selectedUser.displayName}
+                            </Offcanvas.Title>
+                        </Offcanvas.Header>
                         <Offcanvas.Body>
-                            <img src={this.state.selectedUser.profilePicture} style={{width: "100px", height: "100px", margin: "10px"}} />
-                            {this.state.selectedUser.birthday}
-                            {this.state.selectedUser.bio}
+                            <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+                            <img src={this.state.selectedUser.profilePicture} style={{width: "200px", height: "200px", margin: "10px"}} />
+                            <p>
+                                {this.getAge(this.state.selectedUser.birthday)} years old
+                            </p>
+                            <h6 style={{wordWrap: "break-word", maxWidth: "300px"}}>
+                                bio: {this.state.selectedUser.bio}
+                            </h6>
+                            <Button onClick={this.cancleMatch} variant="outline-danger" style={{margin: "10px", bottom: "0px", position: "absolute"}}>Cancle Match</Button>
+                            </div>
 
                         </Offcanvas.Body>
                     </Offcanvas>

@@ -11,7 +11,6 @@ class ChatList extends React.Component<{}, any> {
             chats: [],
             channelsDisplay: [],
             channels: [],
-            matchedUsers: []
         };
         this.handleClick = this.handleClick.bind(this);
     }
@@ -53,9 +52,10 @@ class ChatList extends React.Component<{}, any> {
         <div>
             <NavbarComponent />
             {this.state.channelsDisplay!.map((channel: string) => {
+                console.log(this.state.user.matchedUsers);
                 return (
                     <div key={channel}>
-                        <Button variant="primary" onClick={() => this.handleClick(this.state.channels[this.state.channelsDisplay!.indexOf(channel)])}>
+                        <Button variant="primary" onClick={() => this.handleClick(this.state.channels[this.state.channelsDisplay!.indexOf(channel)])} style={{margin: "10px"}}>
                             {channel}
                         </Button>
                     </div>

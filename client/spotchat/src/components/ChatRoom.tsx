@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, Offcanvas } from 'react-bootstrap';
 import CardHeader from 'react-bootstrap/esm/CardHeader';
 import { io } from 'socket.io-client';
 import { NavbarComponent } from './Navbar';
@@ -39,7 +39,30 @@ class ChatRoom extends React.Component<{}, any> {
                 float: 'left',
                 marginLeft: '20%',
                 maxWidth: '30%'
-            }
+            },
+            userOther: {
+                displayName: '',
+                spotifyUrl: '',
+                profilePicture: '',
+                birthday: '',
+                bio: '',
+            },
+            userSelf: {
+                displayName: '',
+                spotifyUrl: '',
+                profilePicture: '',
+                birthday: '',
+                bio: '',
+            },
+            show: false,
+            selectedUser: {
+                displayName: '',
+                spotifyUrl: '',
+                profilePicture: '',
+                birthday: '',
+                bio: '',
+            },
+            scroll: true
         }
         this.state.socket.on(this.state.channelId, (data: any) => {
             this.setState({ chats: [...this.state.chats, data] });
@@ -48,11 +71,46 @@ class ChatRoom extends React.Component<{}, any> {
         this.componentDidMount = this.componentDidMount.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.scroll = this.scroll.bind(this);
+        this.handleShow = this.handleShow.bind(this);
+        this.handleClose = this.handleClose.bind(this);
     }
 
     async componentDidMount() {
         const channel = await axios.get(`http://localhost:8080/channels/${this.state.channelId}`);
         this.setState({chats: channel.data.messages});
+        const user1 = await axios.get(`http://localhost:8080/users/objectId/${channel.data.users[0]}`);
+        const user2 = await axios.get(`http://localhost:8080/users/objectId/${channel.data.users[1]}`);
+        if (user1.data.userId === this.state.userId) {
+            this.setState({ userOther: {
+                displayName: user2.data.aboutMe.display_name,
+                spotifyUrl: user2.data.aboutMe.external_urls.spotify,
+                profilePicture: user2.data.profilePicture,
+                birthday: user2.data.birthday,
+                bio: user2.data.bio
+            }});
+            this.setState({ userSelf: {
+                displayName: user1.data.aboutMe.display_name,
+                spotifyUrl: user1.data.aboutMe.external_urls.spotify,
+                profilePicture: user1.data.profilePicture,
+                birthday: user1.data.birthday,
+                bio: user1.data.bio
+            }});
+        } else {
+            this.setState({ userOther: {
+                displayName: user1.data.aboutMe.display_name,
+                spotifyUrl: user1.data.aboutMe.external_urls.spotify,
+                profilePicture: user1.data.profilePicture,
+                birthday: user1.data.birthday,
+                bio: user1.data.bio
+            }});
+            this.setState({ userSelf: {
+                displayName: user2.data.aboutMe.display_name,
+                spotifyUrl: user2.data.aboutMe.external_urls.spotify,
+                profilePicture: user2.data.profilePicture,
+                birthday: user2.data.birthday,
+                bio: user2.data.bio
+            }});
+        }
     }
 
     scroll = () => {
@@ -60,7 +118,9 @@ class ChatRoom extends React.Component<{}, any> {
     }
 
     componentDidUpdate() {
-        this.scroll();
+        if (this.state.scroll) {
+            this.scroll();
+        }
     }
 
     handleTextChange = (event: any) => {
@@ -79,6 +139,7 @@ class ChatRoom extends React.Component<{}, any> {
                 message: message,
                 channelId: this.state.channelId
             });
+            this.setState({scroll: true});
         } else {
             this.setState({text: event.target.value});
         }   
@@ -101,6 +162,22 @@ class ChatRoom extends React.Component<{}, any> {
                 channelId: this.state.channelId
             });
         }
+        this.setState({scroll: true});
+    }
+
+    handleShow(userself: boolean) {
+        if (userself) {
+            this.setState({ selectedUser: this.state.userSelf });
+        } else {
+            this.setState({ selectedUser: this.state.userOther });
+        }
+        this.setState({ show: true });
+        this.setState({ scroll: false });
+    }
+
+    handleClose = () => {
+        this.setState({show: false});
+
     }
 
     render() {
@@ -109,12 +186,27 @@ class ChatRoom extends React.Component<{}, any> {
                 <NavbarComponent />
                 <Button href="/chatList" variant="outline-secondary" style={{margin: "10px", position: "fixed"}}>Back to Chat List</Button>
                 <section style={{display: "inline-block", width: "100%", marginTop:"5%", marginBottom:"5%"}}>
+                    <Offcanvas show={this.state.show} onHide={this.handleClose}>
+                        <Offcanvas.Title style={{textAlign: "center", margin: "10px"}}>
+                            {this.state.selectedUser.displayName}
+                        </Offcanvas.Title>
+                        <Offcanvas.Body>
+                            <img src={this.state.selectedUser.profilePicture} style={{width: "100px", height: "100px", margin: "10px"}} />
+                            {this.state.selectedUser.birthday}
+                            {this.state.selectedUser.bio}
+
+                        </Offcanvas.Body>
+                    </Offcanvas>
                     {this.state.chats.map((chat: any, index: number) => (
                         <div className="chat-message" key={index}>
                             <Card style={chat.user.userId === this.state.userId ? this.state.styleSelf : this.state.styleOther}>
                                 <Card.Header>
-                                    <img src={chat.user.avatar} alt="avatar" style={{width: "30px", height: "30px", borderRadius: "50%"}} />
-                                    <span style={{margin: "0px 10px"}}>{chat.user.name}</span>
+                                    <div style={{cursor: "pointer"}}>
+                                        <a onClick={() => this.handleShow(chat.user.userId === this.state.userId)}>
+                                            <img src={chat.user.avatar} alt="avatar" style={{width: "30px", height: "30px", borderRadius: "50%"}} />
+                                            <span style={{margin: "0px 10px"}}>{chat.user.name}</span>
+                                        </a>
+                                    </div>
                                 </Card.Header>
                                 <Card.Body>
                                     <Card.Text>

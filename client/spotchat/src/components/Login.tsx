@@ -22,6 +22,7 @@ class Login extends React.Component<{},any>{
                     this.setState({loggedIn: true});
                     localStorage.setItem('loggedIn', 'true');
                     localStorage.setItem('user', JSON.stringify(res.data));
+                    localStorage.setItem("selected", "home")
                 })
                 .catch(err => {
                     this.setState({error: err});

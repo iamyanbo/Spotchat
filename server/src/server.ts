@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController, recommendationController, ChannelController } from "./controllers";
+import { AuthController, CallbackController, userController, albumController, artistController, songController, logoutController, recommendationController, ChannelController, matchController } from "./controllers";
 import http, { createServer } from "http";
 import {
   EntityManager,
@@ -36,14 +36,6 @@ const app = express();
 app.use(cookieParser());
 const port = process.env.PORT || 8080;
 
-export const pusher = new Pusher({
-  appId: process.env.app_id!,
-  key: process.env.key!,
-  secret: process.env.secret!,
-  cluster: process.env.cluster!,
-  encrypted: true,
-});
-
 export const init = (async () => {
   DI.orm = await MikroORM.init();
   DI.em = DI.orm.em;
@@ -67,6 +59,7 @@ export const init = (async () => {
   app.use("/logout", logoutController);
   app.use("/recommendations", recommendationController);
   app.use('/channels', ChannelController);
+  app.use('/matches', matchController);
   app.use((req, res) => res.status(404).json({ message: "No route found" }));
 
   // console.log that your server is up and running

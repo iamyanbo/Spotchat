@@ -7,3 +7,4 @@ export * from "./song.controller";
 export * from "./logout.controller";
 export * from "./recommendation.controller";
 export * from "./channel.controller";
+export * from "./match.controller";

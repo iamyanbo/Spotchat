@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 import { DI } from "../server";
 import { User } from "../entities";
 import { saveUser, updateUser } from "./callback.controller";
+import { io } from "../server";
 
 // Global Config
 export const userController = express.Router();
@@ -140,14 +141,14 @@ userController.patch("/cancelMatch", async (req: Request, res: Response) => {
     try{
         const userId = req.body.userId;
         const matchedUserId = req.body.matchedUserId;
+        const channelId = req.body.channelId;
         const user = await DI.em.findOne(User, { userId: userId });
         const matchedUser = await DI.em.findOne(User, { userId: matchedUserId });
         user!.rejectedUsers.add(matchedUser!);
         matchedUser!.rejectedUsers.add(user!);
-        user!.matchedUsers.remove(matchedUser!);
-        matchedUser!.matchedUsers.remove(user!);
         await DI.em.persistAndFlush(user!);
         await DI.em.persistAndFlush(matchedUser!);
+        io.emit(channelId+"cancelledMatch", null)
         res.status(200).send(`${user} updated`);
     } catch (err) {
         res.status(500).json(err)

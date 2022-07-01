@@ -65,10 +65,14 @@ class ChatRoom extends React.Component<{}, any> {
                 bio: '',
                 userId: ''
             },
-            scroll: true
+            scroll: true,
+            cancelledMatch: false,
         }
         this.state.socket.on(this.state.channelId, (data: any) => {
             this.setState({ chats: [...this.state.chats, data] });
+        });
+        this.state.socket.on((this.state.channelId+'cancelledMatch'), (data: any) => {
+            window.location.reload();
         });
         this.handleTextChange = this.handleTextChange.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
@@ -85,6 +89,7 @@ class ChatRoom extends React.Component<{}, any> {
         this.setState({chats: channel.data.messages});
         const user1 = await axios.get(`http://localhost:8080/users/objectId/${channel.data.users[0]}`);
         const user2 = await axios.get(`http://localhost:8080/users/objectId/${channel.data.users[1]}`);
+        let tempOtheruser = user2.data;
         if (user1.data.userId === this.state.userId) {
             this.setState({ userOther: {
                 displayName: user2.data.aboutMe.display_name,
@@ -102,6 +107,7 @@ class ChatRoom extends React.Component<{}, any> {
                 bio: user1.data.bio,
                 userId: user1.data.userId
             }});
+            tempOtheruser = user2.data;
         } else {
             this.setState({ userOther: {
                 displayName: user1.data.aboutMe.display_name,
@@ -119,7 +125,16 @@ class ChatRoom extends React.Component<{}, any> {
                 bio: user2.data.bio,
                 userId: user2.data.userId
             }});
+            tempOtheruser = user1.data;
         }
+        axios.post("http://localhost:8080/matches/isCancelled", {
+            userId: this.state.userId,
+            otherUserId: tempOtheruser.userId
+        }).then((res: any) => {
+            this.setState({ cancelledMatch: res.data });
+        }).catch((err: any) => {
+            console.log(err);
+        });
     }
 
     scroll = () => {
@@ -205,21 +220,12 @@ class ChatRoom extends React.Component<{}, any> {
         if (window.confirm("Are you sure you want to cancel this match?")) {
             await axios.patch("http://localhost:8080/users/cancelMatch", {
                 userId: this.state.userId,
-                matchedUserId: this.state.selectedUser.userId
+                matchedUserId: this.state.selectedUser.userId,
+                channelId: this.state.channelId
             });
-            window.location.href = "/chatList"
         } else {
             return;
         }
-        //axios.patch("http://localhost:8080/users/cancelMatch", {
-        //    userId: this.state.userId,
-        //    matchedUserId: this.state.userOther.userId
-        //}).then((res: any) => {
-        //    console.log(res)
-        //}).catch((err: any) => {
-        //    console.log(err)
-        //});
-        //window.location.href = "/chatList";
     }
 
     render() {
@@ -227,6 +233,9 @@ class ChatRoom extends React.Component<{}, any> {
             <div className="ChatRoom">
                 <NavbarComponent />
                 <Button href="/chatList" variant="outline-secondary" style={{margin: "10px", position: "fixed"}}>Back to Chat List</Button>
+                {this.state.cancelledMatch ?
+                <h6 style={{position:"fixed", color: "red", top:"12%", left:"10px" }}>Match canceled</h6>:
+                null}
                 <section style={{display: "inline-block", width: "100%", marginTop:"5%", marginBottom:"5%"}}>
                     <Offcanvas show={this.state.show} onHide={this.handleClose} placement={'end'}>
                         <Offcanvas.Header closeButton>
@@ -269,6 +278,7 @@ class ChatRoom extends React.Component<{}, any> {
                     ))}
                     <div style={{textAlign: "center", position: "fixed", bottom: "0px", width: "100%", backgroundColor: "#f5f5f5", display:"flex"}}>
                         <input
+                            disabled={this.state.cancelledMatch}
                             style={{margin: "10px", borderRadius: "5px", padding: "5px", width:"100%", marginLeft:"20%"}}
                             type="text"
                             value={this.state.text}
@@ -277,7 +287,10 @@ class ChatRoom extends React.Component<{}, any> {
                             onChange={this.handleTextChange}
                             onKeyDown={this.handleTextChange}
                         />
-                        <Button variant="outline-primary" style={{margin: "10px", borderRadius: "5px", padding: "5px", marginRight:"20%"}} onClick={this.handleSubmit}>Send</Button>
+                        <Button variant="outline-primary" style={{margin: "10px", borderRadius: "5px", padding: "5px", marginRight:"20%"}} onClick={this.handleSubmit}
+                        disabled={this.state.cancelledMatch}>
+                            Send
+                        </Button>
                     </div>
             </section>
           </div>

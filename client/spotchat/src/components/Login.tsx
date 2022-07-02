@@ -15,6 +15,11 @@ class Login extends React.Component<{},any>{
         }
     }
     componentDidMount(){
+        localStorage.setItem("selected", "home");
+        if(localStorage.getItem("loggedIn") === "true"){
+            this.setState({loggedIn: true});
+            window.location.href = '/home';
+        }
         const userId = new URLSearchParams(window.location.search).get('userId');
         if (userId) {
             axios.get('http://localhost:8080/users/' + userId)

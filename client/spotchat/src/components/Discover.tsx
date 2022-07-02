@@ -26,6 +26,7 @@ class Discover extends React.Component<{}, any> {
         this.state = {
             user: JSON.parse(localStorage.getItem('user')!),
             reload: true,
+            relatedUsers: []
         }
         this.handleClickYes = this.handleClickYes.bind(this);
         this.handleClickNo = this.handleClickNo.bind(this);
@@ -57,22 +58,25 @@ class Discover extends React.Component<{}, any> {
         this.setState({ reload: true });
     }
 
+    componentDidMount() {
+        localStorage.setItem("selected", "discover");
+        axios.get("http://localhost:8080/recommendations/" + this.state.user.userId).then(res => {
+            console.log(res);
+            localStorage.setItem('relatedUsers', JSON.stringify(res.data));
+            this.setState({ reload: false });
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
     render() {
-        if (this.state.reload) {
-            axios.get("http://localhost:8080/recommendations/" + this.state.user.userId).then(res => {
-                console.log(res);
-                localStorage.setItem('relatedUsers', JSON.stringify(res.data));
-                this.setState({ reload: false });
-            }).catch(err => {
-                console.log(err);
-            });
-        }
+
         return (
 
             <div>
                 <NavbarComponent />
                 <div>
-                    {JSON.parse(localStorage.getItem('relatedUsers')!).length !== 0 ? JSON.parse(localStorage.getItem('relatedUsers')!).map((user: User) => {
+                    {this.state.relatedUsers.length !== 0 ? JSON.parse(localStorage.getItem('relatedUsers')!).map((user: User) => {
                         return <div key={user.userId}> 
                         <Accordion>
                                 <Accordion.Header>

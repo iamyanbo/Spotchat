@@ -17,9 +17,11 @@ export class Channel extends BaseEntity {
 
     @Property({ type: "String" })
     channelId: string;
-    
-    @ManyToMany(() => User, user => user.channels, {owner: true})
-    users = new Collection<User>(this);
+
+    //Not many to many because updating the channels will take too long and 
+    //the frontend calls to get the users at the start anyways, so we can just store it as their objectId's
+    @Property({ type: Array })
+    users: Array<string>;
 
     @Property({ type: Array })
     messages: Array<message>;
@@ -29,5 +31,6 @@ export class Channel extends BaseEntity {
         super();
         this.channelId = channelId;
         this.messages = new Array<message>();
+        this.users = new Array<string>();
     }
 }

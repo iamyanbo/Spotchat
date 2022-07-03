@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Card } from "react-bootstrap";
 import Home from "./Home";
-import { NavbarComponent } from "./Navbar";
+import NavbarComponent  from "./Navbar";
 
 interface album{
     collaborative: boolean;

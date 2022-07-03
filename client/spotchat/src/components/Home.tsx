@@ -2,7 +2,7 @@ import React from "react";
 import reactDOM from "react-dom";
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from "react";
 import { Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
-import { NavbarComponent } from "./Navbar"
+import NavbarComponent from "./Navbar"
 import Album from "./Album";
 import TopTracks from "./TopTracks";
 import { Navigate } from "react-router-dom";
@@ -16,6 +16,7 @@ class Home extends React.Component<{}, any>{
             displayTopTracks: true,
         }
     }
+
     handleClick1 = (e: any) => {
         this.setState({displayAlbums: true, displayTopTracks: false});
     }

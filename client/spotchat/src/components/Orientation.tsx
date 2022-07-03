@@ -18,7 +18,6 @@ class Orientation extends React.Component<{}, any> {
             bio: "",
             profilePicture: null,
             profilePictureEncoded: "",
-
         }
         this.handleChangeGender = this.handleChangeGender.bind(this);
         this.handleChangePreference = this.handleChangePreference.bind(this);
@@ -70,11 +69,9 @@ class Orientation extends React.Component<{}, any> {
             this.setState({profilePictureEncoded: reader.result});
         }
         reader.readAsDataURL(file);
-        console.log(this.state.profilePictureEncoded);
     }
 
     async handleSubmit(event: any) {
-        console.log(this.state)
         const birthday = new Date(`${this.state.month} ${this.state.day}, ${this.state.year}`);
         if (this.state.gender !== "" && this.state.interestedIn !== ""
         && this.state.month !== "" && this.state.day !== "" && this.state.year !== ""
@@ -95,18 +92,18 @@ class Orientation extends React.Component<{}, any> {
         } else {
             this.handleModalOpen()
         }
-
     }
 
     render() {
-        if (this.state.user.sex !== "") {
+        if (this.state.user.sex !== "" ) {
             window.localStorage.setItem("userDetails", "true");
+            window.localStorage.setItem("selected", "home")
             window.location.href = "/home";
         }
         const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         return(
             <div>
-                <h1>First lets get you set up</h1>
+                <h1>Profile Setup</h1>
                 <h6>When is your birthday?</h6>
                 <ButtonGroup>
                     <Dropdown>

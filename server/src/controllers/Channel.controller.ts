@@ -1,3 +1,4 @@
+import { wrap } from "@mikro-orm/core";
 import { ObjectId } from "@mikro-orm/mongodb";
 import express, { Request, Response } from "express";
 import { Channel, User } from "../entities";
@@ -33,14 +34,8 @@ ChannelController.post("/", async (req: Request, res: Response) => {
             res.status(200).json(channel);
         } else {
             const newChannel = new Channel(channelId);
-            const user1 = await DI.em.findOne(User, { _id: new ObjectId(userId1) });
-            const user2 = await DI.em.findOne(User, { _id: new ObjectId(userId2) });
-            if (user1 && user2) {
-                newChannel.users.add(user1);
-                newChannel.users.add(user2);
-            } else {
-                res.status(404).send(`user with id: ${userId1} or ${userId2} not found`);
-            }
+            newChannel.users.push(userId1);
+            newChannel.users.push(userId2);
             await DI.em.persistAndFlush(newChannel);
             res.status(201).json(newChannel);
         }
@@ -57,7 +52,10 @@ ChannelController.patch("/", async (req: Request, res: Response) => {
     const channel = await DI.em.findOne(Channel, { channelId: channelId });
     io.emit(channelId, message);
     if (channel) {
-        channel.messages.push(message);
+        console.log("herelol",channel.users);
+        wrap(channel).assign({
+            messages: [...channel.messages, message]
+        }, { updateByPrimaryKey: false });
         DI.em.persistAndFlush(channel);
         res.status(200).json(channel.messages);
     } else {

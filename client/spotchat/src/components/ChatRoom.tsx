@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Card, Offcanvas } from 'react-bootstrap';
 import CardHeader from 'react-bootstrap/esm/CardHeader';
 import { io } from 'socket.io-client';
-import { NavbarComponent } from './Navbar';
+import NavbarComponent  from './Navbar';
 
 class ChatRoom extends React.Component<{}, any> {
     constructor(props: any) {

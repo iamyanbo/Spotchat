@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { Accordion, AccordionButton, Button } from "react-bootstrap";
-import { NavbarComponent } from "./Navbar";
+import NavbarComponent  from "./Navbar";
 
 class ChatList extends React.Component<{}, any> {
     constructor(props: any) {

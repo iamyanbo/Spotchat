@@ -52,8 +52,8 @@ export class User extends BaseEntity {
   @Property({type: "String"})
   refreshToken: string;
   
-  @ManyToMany(() => Channel , channel => channel.users)
-  channels = new Collection<Channel>(this);
+  @Property({type: Array})
+  channels = new Array<Channel>();
 
   constructor(userId: string, aboutMe: Object, albums: Object, playlists: Object, topTracks: Object
     , accessToken: string, refreshToken: string) {
@@ -70,5 +70,6 @@ export class User extends BaseEntity {
     this.profilePicture = "";
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
+    this.channels = new Array<Channel>();
   }
 }

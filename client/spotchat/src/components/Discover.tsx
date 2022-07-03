@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { Accordion, Button } from "react-bootstrap";
-import { NavbarComponent } from "./Navbar";
+import NavbarComponent  from "./Navbar";
 
 interface User {
     userId: string
@@ -70,9 +70,7 @@ class Discover extends React.Component<{}, any> {
     }
 
     render() {
-
         return (
-
             <div>
                 <NavbarComponent />
                 <div>

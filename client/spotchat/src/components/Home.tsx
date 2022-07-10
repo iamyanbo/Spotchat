@@ -17,6 +17,10 @@ class Home extends React.Component<{}, any>{
         }
     }
 
+    componentDidMount(){
+        localStorage.setItem("selected", "home");
+    }
+
     handleClick1 = (e: any) => {
         this.setState({displayAlbums: true, displayTopTracks: false});
     }

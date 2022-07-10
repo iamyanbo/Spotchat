@@ -28,7 +28,6 @@ class Album extends React.Component<{}, any>{
         }
     }
     render(){
-        console.log(this.state.user)
         return(
             <div className="row" style={{display:"flex", alignContent:"center", justifyContent:"center"}}>
                 {this.state.user.albums.items.map((album: album) => {

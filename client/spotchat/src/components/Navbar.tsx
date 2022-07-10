@@ -11,17 +11,15 @@ class NavbarComponent extends React.Component<{}, any> {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    componentDidMount() {
-        this.setState({selected: localStorage.getItem("selected") || "home"});
-        console.log(localStorage.getItem("selected"));
-    }
-
     handleClick = (e: any) => {
         this.setState({selected: e.target.id});
         localStorage.setItem("selected", e.target.id);
     }
 
     render() {
+        if (!window.location.href.includes(this.state.selected)) {
+            window.location.reload();
+        }
         return (
             <Navbar bg="dark" variant="dark" sticky="top">
                 <Container>

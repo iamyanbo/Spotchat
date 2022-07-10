@@ -39,7 +39,6 @@ class ChatList extends React.Component<{}, any> {
         this.setState({ channels: channels });
         user.data.matchedUsers.forEach((objectId: string) => {
             axios.get(`http://localhost:8080/users/objectId/${objectId}`).then(res1 => {
-                console.log(res1.data);
                 this.setState({ channelsDisplay: [...this.state.channelsDisplay, [res1.data.aboutMe.display_name, res1.data.bio, res1.data.profilePicture] ] });
                 axios.post("http://localhost:8080/matches/isCancelled/objectId", {
                 userId: this.state.user.id,
@@ -54,6 +53,7 @@ class ChatList extends React.Component<{}, any> {
 
     handleClick = (channelName: string) => {
         window.location.href = "/chat/" + channelName;
+        localStorage.setItem("selected", "chat/" + channelName);
     }
     
     render() {
@@ -66,9 +66,9 @@ class ChatList extends React.Component<{}, any> {
                         <Accordion>
                             <Accordion.Header>
                                 <h3>{channel[0]}</h3>
-                                <img src={channel[2]} alt="profile picture" style={{width: "100px", height: "100px"}} />
+                                <img src={channel[2]} alt="profile picture" style={{width: "100px", height: "100px", margin:"10px", borderRadius:"5px"}} />
                                 <a onClick={() => this.handleClick(this.state.channels[this.state.channelsDisplay.indexOf(channel)])}
-                                    style={{right: "10%", position: "fixed", width:"10%", backgroundColor: "#0275d8", height: "5%", textAlign: "center", margin:"auto", padding:"12px", borderRadius:"5px"}}>Chat</a>
+                                    style={{right: "10%", position: "fixed", width:"10%", backgroundColor: "#0275d8", height: "5%", textAlign: "center", margin:"auto", padding:"12px", borderRadius:"5px", color: "white"}}>Chat</a>
                             </Accordion.Header>
                             <Accordion.Body >
                                 <p style={{wordBreak: "break-word"}}>

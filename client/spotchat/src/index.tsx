@@ -16,11 +16,6 @@ import ChangeProfile from './components/ChangeProfile';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
-const backHome = () => {
-  localStorage.setItem("selected", "home");
-  return <Navigate to="/home" />;
-}
-
 root.render(
   
     <BrowserRouter>
@@ -34,10 +29,10 @@ root.render(
         <Route path="/logout" element={<Logout />} />
         <Route path="/orientation" element={<Orientation />} />
         <Route path="/discover" element={<Discover />} />
-        <Route path="*" element={backHome()} />
         <Route path="/chatList" element={<ChatList />} /> 
         <Route path="/chat/:id" element={<ChatRoom />} />
         <Route path="/changeProfile" element={<ChangeProfile />} />
+        <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
       ) : (
         <Routes>

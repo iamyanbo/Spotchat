@@ -4,7 +4,6 @@ export const Logout = () => {
     localStorage.setItem('loggedIn', 'false');
     localStorage.removeItem('user');
     localStorage.removeItem('relatedUsers');
-    localStorage.setItem('userDetails', 'false');
     localStorage.setItem("selected", "home");
     return null;
 

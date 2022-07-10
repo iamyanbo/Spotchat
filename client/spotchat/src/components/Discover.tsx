@@ -37,7 +37,6 @@ class Discover extends React.Component<{}, any> {
             userId: this.state.user.userId,
             acceptedUserId: event.target.id,
         }).then(res => {
-            console.log(res);
             localStorage.setItem('relatedUsers', JSON.stringify(res.data));
         }).catch(err => {
             console.log(err);
@@ -50,7 +49,6 @@ class Discover extends React.Component<{}, any> {
             userId: this.state.user.userId,
             rejectedUserId: event.target.id,
         }).then(res => {
-            console.log(res);
             localStorage.setItem('relatedUsers', JSON.stringify(res.data));
         }).catch(err => {
             console.log(err);
@@ -61,7 +59,6 @@ class Discover extends React.Component<{}, any> {
     componentDidMount() {
         localStorage.setItem("selected", "discover");
         axios.get("http://localhost:8080/recommendations/" + this.state.user.userId).then(res => {
-            console.log(res);
             localStorage.setItem('relatedUsers', JSON.stringify(res.data));
             this.setState({ reload: false });
         }).catch(err => {

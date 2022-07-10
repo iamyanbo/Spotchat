@@ -82,6 +82,7 @@ class ChatRoom extends React.Component<{}, any> {
         this.handleClose = this.handleClose.bind(this);
         this.getAge = this.getAge.bind(this);
         this.cancleMatch = this.cancleMatch.bind(this);
+        this.handleBack = this.handleBack.bind(this);
     }
 
     async componentDidMount() {
@@ -202,7 +203,6 @@ class ChatRoom extends React.Component<{}, any> {
 
     handleClose = () => {
         this.setState({show: false});
-
     }
 
     getAge(birthday: string) {
@@ -228,11 +228,16 @@ class ChatRoom extends React.Component<{}, any> {
         }
     }
 
+    handleBack = () => {
+        window.location.href = "/chatList";
+        localStorage.setItem("selected", "chatList");
+    }
+
     render() {
         return (
             <div className="ChatRoom">
                 <NavbarComponent />
-                <Button href="/chatList" variant="outline-secondary" style={{margin: "10px", position: "fixed"}}>Back to Chat List</Button>
+                <Button onClick={this.handleBack} variant="outline-secondary" style={{margin: "10px", position: "fixed"}}>Back to Chat List</Button>
                 {this.state.cancelledMatch ?
                 <h6 style={{position:"fixed", color: "red", top:"12%", left:"10px" }}>Match canceled</h6>:
                 null}
